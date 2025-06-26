@@ -1,3 +1,9 @@
+# 🔒 Security Checker Tool
+
+A modern, user-friendly web-based security analysis tool with API support. Performs comprehensive security checks on domains and IP addresses including DNS, SSL, HTTP headers, port scanning, WHOIS, and blacklist monitoring. Features a responsive Tailwind CSS interface, rate limiting (20 requests/minute), and detailed reporting with RAW JSON output.
+
+---
+
 # 🔒 Güvenlik Kontrol Aracı
 
 Modern, kullanıcı dostu ve API destekli bir web tabanlı güvenlik analiz aracı. Domain ve IP adreslerinin güvenlik durumunu kontrol eder, detaylı rapor ve RAW JSON çıktısı sunar.
