@@ -88,8 +88,8 @@ class SecurityChecker {
                 case 'ports':
                     $this->checkPorts();
                     break;
-                case 'whois':
-                    $this->checkWHOIS();
+                case 'email':
+                    $this->checkEmailSecurity();
                     break;
                 case 'blacklist':
                     $this->checkBlacklist();
@@ -267,21 +267,114 @@ class SecurityChecker {
         try {
             $details = "HTTP Headers Kontrol Sonuçları:\n\n";
             
-            $protocol = $this->port == 443 ? 'https' : 'http';
-            $url = "{$protocol}://{$this->target}";
+            // Protokol belirleme
+            $protocol = 'http';
+            $port = $this->port ?: 80;
             
+            // HTTPS kontrolü
+            if ($port == 443 || $port == 8443) {
+                $protocol = 'https';
+            } else {
+                // SSL kontrolü yap
+                $sslContext = stream_context_create([
+                    'ssl' => [
+                        'verify_peer' => false,
+                        'verify_peer_name' => false,
+                        'timeout' => 5
+                    ]
+                ]);
+                
+                $sslConnection = @stream_socket_client(
+                    "ssl://{$this->target}:{$port}",
+                    $errno,
+                    $errstr,
+                    5,
+                    STREAM_CLIENT_CONNECT,
+                    $sslContext
+                );
+                
+                if ($sslConnection) {
+                    $protocol = 'https';
+                    fclose($sslConnection);
+                }
+            }
+            
+            $url = "{$protocol}://{$this->target}";
+            $details .= "🔗 Test URL: {$url}\n\n";
+            
+            // İlk bağlantı - redirect'leri kontrol et
             $context = stream_context_create([
                 'http' => [
                     'method' => 'HEAD',
                     'timeout' => 10,
-                    'user_agent' => 'SecurityChecker/1.0'
+                    'user_agent' => 'SecurityChecker/1.0',
+                    'follow_location' => false,
+                    'max_redirects' => 0
                 ]
             ]);
 
             $headers = @get_headers($url, 1, $context);
             
-            if ($headers) {
-                $details .= "✓ HTTP bağlantısı başarılı\n\n";
+            if ($headers && is_array($headers)) {
+                $details .= "✓ HTTP bağlantısı başarılı\n";
+                
+                // HTTP durum kodu kontrolü
+                $statusLine = $headers[0] ?? '';
+                if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', $statusLine, $matches)) {
+                    $httpCode = $matches[1];
+                    $details .= "📊 HTTP Durum Kodu: {$httpCode}\n";
+                    
+                    // Redirect kontrolü
+                    if ($httpCode >= 300 && $httpCode < 400) {
+                        $details .= "🔄 Redirect tespit edildi\n";
+                        
+                        // Location header'ını bul
+                        $location = null;
+                        foreach ($headers as $key => $value) {
+                            if (strcasecmp($key, 'Location') === 0) {
+                                $location = is_array($value) ? $value[0] : $value;
+                                break;
+                            }
+                        }
+                        
+                        if ($location) {
+                            $details .= "📍 Yönlendirilen URL: {$location}\n\n";
+                            
+                            // Final URL'den header'ları al
+                            $finalContext = stream_context_create([
+                                'http' => [
+                                    'method' => 'HEAD',
+                                    'timeout' => 10,
+                                    'user_agent' => 'SecurityChecker/1.0',
+                                    'follow_location' => false,
+                                    'max_redirects' => 0
+                                ]
+                            ]);
+                            
+                            $finalHeaders = @get_headers($location, 1, $finalContext);
+                            
+                            if ($finalHeaders && is_array($finalHeaders)) {
+                                $finalStatusLine = $finalHeaders[0] ?? '';
+                                if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', $finalStatusLine, $matches)) {
+                                    $finalHttpCode = $matches[1];
+                                    $details .= "📊 Final HTTP Durum Kodu: {$finalHttpCode}\n";
+                                    
+                                    if ($finalHttpCode >= 400) {
+                                        $details .= "⚠ Final URL'de HTTP hatası: {$finalStatusLine}\n";
+                                    }
+                                }
+                                
+                                $headers = $finalHeaders; // Final header'ları kullan
+                            } else {
+                                $details .= "⚠ Final URL'den header'lar alınamadı\n";
+                            }
+                        }
+                    } elseif ($httpCode >= 400) {
+                        $details .= "⚠ HTTP hatası: {$statusLine}\n";
+                    }
+                }
+                
+                $details .= "\n🔒 Güvenlik Headers Kontrolü:\n";
                 
                 $securityHeaders = [
                     'Strict-Transport-Security' => 'HSTS (HTTPS zorunluluğu)',
@@ -290,13 +383,26 @@ class SecurityChecker {
                     'X-XSS-Protection' => 'XSS koruması',
                     'Content-Security-Policy' => 'CSP (İçerik güvenlik politikası)',
                     'Referrer-Policy' => 'Referrer politikası',
-                    'Permissions-Policy' => 'İzin politikası'
+                    'Permissions-Policy' => 'İzin politikası',
+                    'X-Permitted-Cross-Domain-Policies' => 'Cross-domain politikası'
                 ];
 
                 $foundHeaders = 0;
+                $totalHeaders = count($securityHeaders);
+                
                 foreach ($securityHeaders as $header => $description) {
-                    if (isset($headers[$header])) {
-                        $details .= "✓ {$description}: {$headers[$header]}\n";
+                    $headerValue = null;
+                    
+                    // Case-insensitive header arama
+                    foreach ($headers as $key => $value) {
+                        if (strcasecmp($key, $header) === 0) {
+                            $headerValue = is_array($value) ? $value[0] : $value;
+                            break;
+                        }
+                    }
+                    
+                    if ($headerValue !== null) {
+                        $details .= "✓ {$description}: {$headerValue}\n";
                         $foundHeaders++;
                     } else {
                         $details .= "⚠ {$description}: Bulunamadı\n";
@@ -304,15 +410,39 @@ class SecurityChecker {
                 }
 
                 // Server bilgisi
-                if (isset($headers['Server'])) {
-                    $details .= "\nServer: " . $headers['Server'] . "\n";
+                $serverInfo = null;
+                foreach ($headers as $key => $value) {
+                    if (strcasecmp($key, 'Server') === 0) {
+                        $serverInfo = is_array($value) ? $value[0] : $value;
+                        break;
+                    }
+                }
+                
+                if ($serverInfo) {
+                    $details .= "\n🖥️ Server: {$serverInfo}\n";
                 }
 
-                $status = ($foundHeaders >= 4) ? 'success' : 
-                         (($foundHeaders >= 2) ? 'warning' : 'error');
+                // Güvenlik değerlendirmesi
+                $securityScore = ($foundHeaders / $totalHeaders) * 100;
+                $details .= "\n📊 Güvenlik Skoru: {$foundHeaders}/{$totalHeaders} (%" . round($securityScore, 1) . ")\n";
+                
+                if ($securityScore >= 80) {
+                    $status = 'success';
+                    $details .= "✓ Mükemmel güvenlik headers yapılandırması\n";
+                } elseif ($securityScore >= 60) {
+                    $status = 'warning';
+                    $details .= "⚠ İyi güvenlik headers, iyileştirme önerilir\n";
+                } else {
+                    $status = 'error';
+                    $details .= "⚠ Yetersiz güvenlik headers yapılandırması\n";
+                }
                 
             } else {
                 $details .= "⚠ HTTP bağlantısı kurulamadı\n";
+                $details .= "  Olası nedenler:\n";
+                $details .= "  • Domain erişilebilir değil\n";
+                $details .= "  • Port kapalı veya yanlış\n";
+                $details .= "  • Firewall engeli\n";
                 $status = 'error';
             }
 
@@ -399,41 +529,249 @@ class SecurityChecker {
         }
     }
 
-    private function checkWHOIS() {
-        $title = 'WHOIS Bilgi Kontrolü';
-        $description = 'Domain kayıt bilgileri kontrol ediliyor';
+    private function checkEmailSecurity() {
+        $title = 'E-posta Güvenlik Kontrolü';
+        $description = 'E-posta güvenlik ayarları kontrol ediliyor';
         
         try {
-            $details = "WHOIS Kontrol Sonuçları:\n\n";
+            $details = "E-posta Güvenlik Kontrol Sonuçları:\n\n";
             
-            // Basit WHOIS kontrolü (gerçek WHOIS servisi için daha gelişmiş bir çözüm gerekir)
-            $whoisServers = [
-                'com' => 'whois.verisign-grs.com',
-                'net' => 'whois.verisign-grs.com',
-                'org' => 'whois.pir.org',
-                'info' => 'whois.afilias.net',
-                'biz' => 'whois.biz',
-                'tr' => 'whois.nic.tr'
-            ];
-
-            $domain = $this->target;
-            $tld = pathinfo($domain, PATHINFO_EXTENSION);
+            // SPF, DKIM, DMARC kontrolleri
+            $spfStatus = $this->checkSPF();
+            $dkimStatus = $this->checkDKIM();
+            $dmarcStatus = $this->checkDMARC();
+            $mxStatus = $this->checkMXRecords();
+            $reverseDNSStatus = $this->checkReverseDNS();
             
-            if (isset($whoisServers[$tld])) {
-                $details .= "✓ WHOIS sunucusu bulundu: {$whoisServers[$tld]}\n";
-                $details .= "⚠ WHOIS sorgusu için gelişmiş bir servis gerekli\n";
-                $details .= "  (Bu özellik için harici WHOIS API kullanılması önerilir)\n";
+            // Özet
+            $totalChecks = 5;
+            $passedChecks = 0;
+            
+            if ($spfStatus['status'] === 'success') $passedChecks++;
+            if ($dkimStatus['status'] === 'success') $passedChecks++;
+            if ($dmarcStatus['status'] === 'success') $passedChecks++;
+            if ($mxStatus['status'] === 'success') $passedChecks++;
+            if ($reverseDNSStatus['status'] === 'success') $passedChecks++;
+            
+            $details .= $spfStatus['details'];
+            $details .= $dkimStatus['details'];
+            $details .= $dmarcStatus['details'];
+            $details .= $mxStatus['details'];
+            $details .= $reverseDNSStatus['details'];
+            
+            $details .= "\n📊 E-posta Güvenlik Skoru: {$passedChecks}/{$totalChecks}\n";
+            
+            if ($passedChecks >= 4) {
+                $status = 'success';
+                $details .= "✓ E-posta güvenlik ayarları mükemmel\n";
+            } elseif ($passedChecks >= 3) {
                 $status = 'warning';
+                $details .= "⚠ E-posta güvenlik ayarları iyi, iyileştirme önerilir\n";
             } else {
-                $details .= "⚠ WHOIS sunucusu bulunamadı\n";
-                $details .= "  TLD: {$tld}\n";
-                $status = 'warning';
+                $status = 'error';
+                $details .= "⚠ E-posta güvenlik ayarları yetersiz\n";
             }
 
             $this->addResult($title, $description, $status, $details);
 
         } catch (Exception $e) {
-            $this->addResult($title, $description, 'error', 'WHOIS kontrolü sırasında hata: ' . $e->getMessage());
+            $this->addResult($title, $description, 'error', 'E-posta güvenlik kontrolü sırasında hata: ' . $e->getMessage());
+        }
+    }
+    
+    private function checkSPF() {
+        $details = "🔍 SPF (Sender Policy Framework) Kontrolü:\n";
+        
+        try {
+            $txtRecords = dns_get_record($this->target, DNS_TXT);
+            $spfRecord = null;
+            
+            foreach ($txtRecords as $record) {
+                if (strpos($record['txt'], 'v=spf1') !== false) {
+                    $spfRecord = $record['txt'];
+                    break;
+                }
+            }
+            
+            if ($spfRecord) {
+                $details .= "✓ SPF kaydı bulundu: {$spfRecord}\n";
+                
+                // SPF kaydı analizi
+                if (strpos($spfRecord, '~all') !== false) {
+                    $details .= "  ⚠ Soft fail (~all) kullanılıyor\n";
+                    return ['status' => 'warning', 'details' => $details];
+                } elseif (strpos($spfRecord, '-all') !== false) {
+                    $details .= "  ✓ Hard fail (-all) kullanılıyor (En güvenli)\n";
+                    return ['status' => 'success', 'details' => $details];
+                } elseif (strpos($spfRecord, '?all') !== false) {
+                    $details .= "  ⚠ Neutral (?all) kullanılıyor\n";
+                    return ['status' => 'warning', 'details' => $details];
+                } else {
+                    $details .= "  ⚠ Mechanism belirtilmemiş\n";
+                    return ['status' => 'warning', 'details' => $details];
+                }
+            } else {
+                $details .= "⚠ SPF kaydı bulunamadı\n";
+                $details .= "  Önerilen: v=spf1 -all\n";
+                return ['status' => 'error', 'details' => $details];
+            }
+        } catch (Exception $e) {
+            $details .= "⚠ SPF kontrolü sırasında hata: " . $e->getMessage() . "\n";
+            return ['status' => 'error', 'details' => $details];
+        }
+    }
+    
+    private function checkDKIM() {
+        $details = "🔍 DKIM (DomainKeys Identified Mail) Kontrolü:\n";
+        
+        try {
+            // DKIM selector'ları kontrol et
+            $dkimSelectors = ['default', 'google', 'selector1', 'selector2'];
+            $dkimFound = false;
+            
+            foreach ($dkimSelectors as $selector) {
+                $dkimRecord = dns_get_record("{$selector}._domainkey.{$this->target}", DNS_TXT);
+                
+                foreach ($dkimRecord as $record) {
+                    if (strpos($record['txt'], 'v=DKIM1') !== false) {
+                        $details .= "✓ DKIM kaydı bulundu (Selector: {$selector})\n";
+                        $details .= "  " . substr($record['txt'], 0, 50) . "...\n";
+                        $dkimFound = true;
+                        break 2;
+                    }
+                }
+            }
+            
+            if (!$dkimFound) {
+                $details .= "⚠ DKIM kaydı bulunamadı\n";
+                $details .= "  Önerilen: DKIM sertifikası oluşturun\n";
+                return ['status' => 'error', 'details' => $details];
+            }
+            
+            return ['status' => 'success', 'details' => $details];
+            
+        } catch (Exception $e) {
+            $details .= "⚠ DKIM kontrolü sırasında hata: " . $e->getMessage() . "\n";
+            return ['status' => 'error', 'details' => $details];
+        }
+    }
+    
+    private function checkDMARC() {
+        $details = "🔍 DMARC (Domain-based Message Authentication) Kontrolü:\n";
+        
+        try {
+            $dmarcRecords = dns_get_record("_dmarc.{$this->target}", DNS_TXT);
+            $dmarcRecord = null;
+            
+            foreach ($dmarcRecords as $record) {
+                if (strpos($record['txt'], 'v=DMARC1') !== false) {
+                    $dmarcRecord = $record['txt'];
+                    break;
+                }
+            }
+            
+            if ($dmarcRecord) {
+                $details .= "✓ DMARC kaydı bulundu: {$dmarcRecord}\n";
+                
+                // DMARC policy kontrolü
+                if (preg_match('/p=reject/', $dmarcRecord)) {
+                    $details .= "  ✓ Reject policy kullanılıyor (En güvenli)\n";
+                    return ['status' => 'success', 'details' => $details];
+                } elseif (preg_match('/p=quarantine/', $dmarcRecord)) {
+                    $details .= "  ⚠ Quarantine policy kullanılıyor\n";
+                    return ['status' => 'warning', 'details' => $details];
+                } elseif (preg_match('/p=none/', $dmarcRecord)) {
+                    $details .= "  ⚠ None policy kullanılıyor (Sadece izleme)\n";
+                    return ['status' => 'warning', 'details' => $details];
+                } else {
+                    $details .= "  ⚠ Policy belirtilmemiş\n";
+                    return ['status' => 'warning', 'details' => $details];
+                }
+            } else {
+                $details .= "⚠ DMARC kaydı bulunamadı\n";
+                $details .= "  Önerilen: v=DMARC1; p=reject; rua=mailto:dmarc@{$this->target}\n";
+                return ['status' => 'error', 'details' => $details];
+            }
+            
+        } catch (Exception $e) {
+            $details .= "⚠ DMARC kontrolü sırasında hata: " . $e->getMessage() . "\n";
+            return ['status' => 'error', 'details' => $details];
+        }
+    }
+    
+    private function checkMXRecords() {
+        $details = "🔍 MX (Mail Exchange) Kayıtları Kontrolü:\n";
+        
+        try {
+            $mxRecords = dns_get_record($this->target, DNS_MX);
+            
+            if (!empty($mxRecords)) {
+                $details .= "✓ MX kayıtları bulundu:\n";
+                foreach ($mxRecords as $record) {
+                    $details .= "  • {$record['target']} (Priority: {$record['pri']})\n";
+                }
+                
+                // MX kayıtlarının güvenlik kontrolü
+                $secureMX = false;
+                foreach ($mxRecords as $record) {
+                    if (strpos($record['target'], 'google') !== false || 
+                        strpos($record['target'], 'outlook') !== false ||
+                        strpos($record['target'], 'microsoft') !== false) {
+                        $secureMX = true;
+                        break;
+                    }
+                }
+                
+                if ($secureMX) {
+                    $details .= "  ✓ Güvenli mail servisi kullanılıyor\n";
+                    return ['status' => 'success', 'details' => $details];
+                } else {
+                    $details .= "  ⚠ Mail servisi güvenlik kontrolü önerilir\n";
+                    return ['status' => 'warning', 'details' => $details];
+                }
+            } else {
+                $details .= "⚠ MX kaydı bulunamadı\n";
+                return ['status' => 'error', 'details' => $details];
+            }
+            
+        } catch (Exception $e) {
+            $details .= "⚠ MX kontrolü sırasında hata: " . $e->getMessage() . "\n";
+            return ['status' => 'error', 'details' => $details];
+        }
+    }
+    
+    private function checkReverseDNS() {
+        $details = "🔍 Reverse DNS (PTR) Kontrolü:\n";
+        
+        try {
+            $ip = gethostbyname($this->target);
+            
+            if ($ip && $ip !== $this->target) {
+                $ptrRecord = gethostbyaddr($ip);
+                
+                if ($ptrRecord && $ptrRecord !== $ip) {
+                    $details .= "✓ PTR kaydı bulundu: {$ptrRecord}\n";
+                    
+                    // PTR kaydının domain ile uyumluluğu
+                    if (strpos($ptrRecord, $this->target) !== false) {
+                        $details .= "  ✓ PTR kaydı domain ile uyumlu\n";
+                        return ['status' => 'success', 'details' => $details];
+                    } else {
+                        $details .= "  ⚠ PTR kaydı domain ile uyumlu değil\n";
+                        return ['status' => 'warning', 'details' => $details];
+                    }
+                } else {
+                    $details .= "⚠ PTR kaydı bulunamadı\n";
+                    return ['status' => 'error', 'details' => $details];
+                }
+            } else {
+                $details .= "⚠ IP adresi çözümlenemedi\n";
+                return ['status' => 'error', 'details' => $details];
+            }
+            
+        } catch (Exception $e) {
+            $details .= "⚠ Reverse DNS kontrolü sırasında hata: " . $e->getMessage() . "\n";
+            return ['status' => 'error', 'details' => $details];
         }
     }
 

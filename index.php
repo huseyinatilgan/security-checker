@@ -41,11 +41,10 @@
                     </div>
                 </div>
                 <div class="hidden md:flex items-center space-x-4">
-                    <span class="text-blue-100">🔒 Güvenli Analiz</span>
                     <span class="text-blue-100">⚡ Hızlı Sonuç</span>
                     <a href="#api" 
                        onclick="showApiInfo()" 
-                       class="text-blue-100 hover:text-white transition-colors duration-200 flex items-center space-x-1 cursor-pointer">
+                       class="px-4 py-2 border border-white border-opacity-30 rounded-lg text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200 flex items-center space-x-2 cursor-pointer">
                         <i data-feather="code" class="w-4 h-4"></i>
                         <span>API</span>
                     </a>
@@ -105,8 +104,8 @@
                             <span class="text-sm font-medium text-gray-700">Port Tarama</span>
                         </label>
                         <label class="flex items-center space-x-3 cursor-pointer">
-                            <input type="checkbox" name="checks[]" value="whois" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-                            <span class="text-sm font-medium text-gray-700">WHOIS Bilgisi</span>
+                            <input type="checkbox" name="checks[]" value="email" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
+                            <span class="text-sm font-medium text-gray-700">📧 E-posta Güvenliği</span>
                         </label>
                         <label class="flex items-center space-x-3 cursor-pointer">
                             <input type="checkbox" name="checks[]" value="blacklist" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
@@ -265,8 +264,8 @@
                             <span class="text-gray-600 text-sm">- Port tarama</span>
                         </div>
                         <div class="bg-gray-50 rounded-lg p-3">
-                            <span class="font-medium text-gray-700">whois</span>
-                            <span class="text-gray-600 text-sm">- WHOIS bilgisi</span>
+                            <span class="font-medium text-gray-700">email</span>
+                            <span class="text-gray-600 text-sm">- E-posta güvenlik kontrolü</span>
                         </div>
                         <div class="bg-gray-50 rounded-lg p-3">
                             <span class="font-medium text-gray-700">blacklist</span>
@@ -436,7 +435,7 @@
         <div class="container mx-auto px-6">
             <div class="text-center">
                 <p class="text-gray-400 mb-4">
-                    🔒 Güvenlik Kontrol Aracı - Profesyonel güvenlik analizi için geliştirilmiştir
+                    🔒 Güvenlik Kontrol Aracı - Ticari kullanım için değildir. Sonuçlar kesin olmayabilir.
                 </p>
                 <div class="flex justify-center space-x-6 text-sm">
                     <a href="privacy.php" class="text-gray-400 hover:text-white transition-colors duration-200">

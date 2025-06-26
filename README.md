@@ -6,7 +6,7 @@ Modern, kullanıcı dostu ve API destekli bir web tabanlı güvenlik analiz arac
 
 ## 🚀 Özellikler
 
-- **DNS, SSL, HTTP Headers, Port, WHOIS, Kara Liste Kontrolü**
+- **DNS, SSL, HTTP Headers, Port, E-posta Güvenliği, Kara Liste Kontrolü**
 - **Modern ve responsive arayüz (Tailwind CSS)**
 - **API desteği (JSON formatında sonuç)**
 - **Rate Limiting: Dakikada 20 istek**
@@ -146,6 +146,8 @@ guvendeyimdir/
 Daha fazla bilgi veya destek için iletişime geçebilirsiniz.  
 **Güvenli günler!** 🔒
 
+**Not:** Bu araç ticari kullanım için değildir. Sonuçlar kesin olmayabilir.
+
 ## 🎨 Teknolojiler
 
 - **Backend**: PHP 7.4+
@@ -159,7 +161,7 @@ Daha fazla bilgi veya destek için iletişime geçebilirsiniz.
 - Bu araç sadece eğitim ve test amaçlıdır
 - Üretim ortamında kullanmadan önce güvenlik testleri yapın
 - Rate limiting ve güvenlik önlemleri ekleyin
-- WHOIS ve kara liste kontrolleri için gelişmiş API'ler kullanılması önerilir
+- Kara liste kontrolleri için gelişmiş API'ler kullanılması önerilir
 
 ## 🔄 Geliştirme
 

@@ -241,7 +241,7 @@
     <footer class="bg-gray-800 text-white py-8 mt-16">
         <div class="container mx-auto px-6 text-center">
             <p class="text-gray-400">
-                🔒 Güvenlik Kontrol Aracı - Profesyonel güvenlik analizi için geliştirilmiştir
+                🔒 Güvenlik Kontrol Aracı - Ticari kullanım için değildir. Sonuçlar kesin olmayabilir.
             </p>
         </div>
     </footer>

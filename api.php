@@ -244,7 +244,7 @@ try {
     }
     
     // Checks validasyonu
-    $validChecks = ['dns', 'ssl', 'headers', 'ports', 'whois', 'blacklist'];
+    $validChecks = ['dns', 'ssl', 'headers', 'ports', 'email', 'blacklist'];
     if (!empty($checks)) {
         $invalidChecks = array_diff($checks, $validChecks);
         if (!empty($invalidChecks)) {
