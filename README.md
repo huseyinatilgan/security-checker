@@ -27,8 +27,8 @@ Modern, kullanıcı dostu ve API destekli bir web tabanlı güvenlik analiz arac
 ### Adımlar
 
 ```bash
-git clone https://github.com/kendi-reponuz/guvendeyimdir.git
-cd guvendeyimdir
+git clone https://github.com/huseyinatilgan/security-checker.git
+cd security-checker
 php -S localhost:8000
 ```
 
@@ -106,7 +106,7 @@ curl -X POST http://localhost:8000/api.php \
 ## 📁 Dosya Yapısı
 
 ```
-guvendeyimdir/
+security-checker.git/
 ├── index.php              # Ana sayfa (Frontend)
 ├── security_check.php     # Güvenlik kontrol API'si (Web arayüzü için)
 ├── api.php                # API endpoint (Programatik erişim için)
@@ -122,7 +122,7 @@ guvendeyimdir/
 - Girilen bilgiler kayıt altında tutulmaz, analiz sonrası silinir.
 - Sonuçlar %100 garanti edilmez, sorumluluk kabul edilmez.
 - Detaylı bilgi için [privacy.php](privacy.php) sayfasını inceleyin.
-- İletişim: [privacy@guvendeyimdir.com](mailto:privacy@guvendeyimdir.com)
+- İletişim: [atilganhuseyinn@gmail.com](mailto:atilganhuseyinn@gmail.com)
 
 ---
 
@@ -136,7 +136,7 @@ guvendeyimdir/
 
 ## 🏁 Canlıya Geçiş
 
-1. **SSL zorunlu** (Let's Encrypt önerilir)
+1. **SSL zorunlu**
 2. **API anahtarı ve CORS whitelist ayarlarını yapın**
 3. **Sunucu ve dosya izinlerini kontrol edin**
 4. **Güvenlik ve performans testlerini tamamlayın**
@@ -194,13 +194,8 @@ private function checkNewSecurity() {
 
 Herhangi bir sorun veya öneri için issue açabilirsiniz.
 
-## 📄 Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır.
-
----
-
-**🔒 Güvenlik Kontrol Aracı** - Profesyonel güvenlik analizi için geliştirilmiştir
+**🔒 Güvenlik Kontrol Aracı** -  Güvenlik analizi için geliştirilmiştir
 
 ## 🔌 API Kullanımı
 
