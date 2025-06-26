@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://guvenliktarama.com/sitemap.xml
+
+# Crawl-delay (isteğe bağlı - sunucu yükünü azaltmak için)
+Crawl-delay: 1
+
+# Allow important files
+Allow: /index.php
+Allow: /api.php
+Allow: /privacy.php
+Allow: /security_check.php
+Allow: /sitemap.xml
+Allow: /robots.txt 

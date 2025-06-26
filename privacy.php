@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Veri Gizliliği - Güvenlik Kontrol Aracı</title>
+    <title>Veri Gizliliği - Güvenlik Tarama</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
@@ -30,7 +30,7 @@
                             <i data-feather="shield" class="w-6 h-6"></i>
                         </div>
                         <div>
-                            <h1 class="text-2xl font-bold">Güvenlik Kontrol Aracı</h1>
+                            <h1 class="text-2xl font-bold">Güvenlik Tarama</h1>
                             <p class="text-blue-100">Domain ve IP güvenlik analizi</p>
                         </div>
                     </a>
@@ -58,7 +58,7 @@
                     </div>
                 </div>
                 <p class="text-gray-700 leading-relaxed">
-                    Bu veri gizliliği politikası, Güvenlik Kontrol Aracı'nın kullanımı sırasında toplanan bilgilerin nasıl işlendiğini açıklar. 
+                    Bu veri gizliliği politikası, Güvenlik Tarama'nın kullanımı sırasında toplanan bilgilerin nasıl işlendiğini açıklar. 
                     Hizmetimizi kullanarak bu politikayı kabul etmiş sayılırsınız.
                 </p>
             </div>
@@ -73,7 +73,7 @@
                     </h2>
                     <div class="space-y-4 text-gray-700">
                         <p>
-                            Güvenlik Kontrol Aracı, aşağıdaki bilgileri toplar ve işler:
+                            Güvenlik Tarama, aşağıdaki bilgileri toplar ve işler:
                         </p>
                         <ul class="list-disc list-inside space-y-2 ml-4">
                             <li><strong>Girilen hedef bilgileri:</strong> Domain adları ve IP adresleri</li>

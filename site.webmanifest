@@ -1,0 +1,82 @@
+{
+    "name": "Güvenlik Tarama - Domain ve IP Güvenlik Analizi",
+    "short_name": "Güvenlik Tarama",
+    "description": "Ücretsiz domain ve IP adresi güvenlik kontrol aracı. DNS, SSL/TLS, HTTP headers ve güvenlik kontrollerini gerçekleştirin.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#667eea",
+    "theme_color": "#667eea",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "tr",
+    "categories": ["security", "utilities", "developer"],
+    "icons": [
+        {
+            "src": "/favicon-16x16.png",
+            "sizes": "16x16",
+            "type": "image/png"
+        },
+        {
+            "src": "/favicon-32x32.png",
+            "sizes": "32x32",
+            "type": "image/png"
+        },
+        {
+            "src": "/apple-touch-icon.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/images/screenshot-desktop.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide",
+            "label": "Güvenlik Tarama - Masaüstü Görünümü"
+        },
+        {
+            "src": "/images/screenshot-mobile.png",
+            "sizes": "390x844",
+            "type": "image/png",
+            "form_factor": "narrow",
+            "label": "Güvenlik Tarama - Mobil Görünümü"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Güvenlik Analizi",
+            "short_name": "Analiz",
+            "description": "Hızlı güvenlik analizi başlat",
+            "url": "/",
+            "icons": [
+                {
+                    "src": "/favicon-32x32.png",
+                    "sizes": "32x32"
+                }
+            ]
+        },
+        {
+            "name": "API Dokümantasyonu",
+            "short_name": "API",
+            "description": "API kullanım kılavuzu",
+            "url": "/#api",
+            "icons": [
+                {
+                    "src": "/favicon-32x32.png",
+                    "sizes": "32x32"
+                }
+            ]
+        }
+    ]
+} 

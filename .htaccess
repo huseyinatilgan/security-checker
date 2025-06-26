@@ -1,0 +1,111 @@
+# SEO ve Performance Optimizations
+# Güvenlik Kontrol Aracı - .htaccess
+
+# Enable Rewrite Engine
+RewriteEngine On
+
+# Force HTTPS (uncomment if you have SSL)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Remove trailing slashes
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)/$ /$1 [L,R=301]
+
+# Remove .php extension
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^([^\.]+)$ $1.php [NC,L]
+
+# Custom error pages
+ErrorDocument 404 /404.php
+ErrorDocument 500 /500.php
+
+# Gzip Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# Browser Caching
+<IfModule mod_expires.c>
+    ExpiresActive on
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/ico "access plus 1 year"
+    ExpiresByType image/icon "access plus 1 year"
+    ExpiresByType text/plain "access plus 1 month"
+    ExpiresByType application/x-shockwave-flash "access plus 1 month"
+    ExpiresByType text/html "access plus 1 day"
+    ExpiresByType application/xhtml+xml "access plus 1 day"
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    # XSS Protection
+    Header always set X-XSS-Protection "1; mode=block"
+    
+    # Prevent MIME type sniffing
+    Header always set X-Content-Type-Options "nosniff"
+    
+    # Referrer Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Content Security Policy
+    Header always set Content-Security-Policy "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; font-src 'self' https: data:;"
+    
+    # Frame Options
+    Header always set X-Frame-Options "SAMEORIGIN"
+    
+    # Permissions Policy
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# Prevent access to sensitive files
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|inc|bak)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Prevent access to .env files
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Custom MIME types
+<IfModule mod_mime.c>
+    AddType application/json .json
+    AddType text/xml .xml
+</IfModule>
+
+# URL Rewriting for SEO-friendly URLs
+RewriteRule ^güvenlik-kontrol$ /index.php [L]
+RewriteRule ^api-dokümantasyonu$ /index.php#api [L]
+RewriteRule ^gizlilik-politikasi$ /privacy.php [L]
+
+# Redirect old URLs to new ones (if any)
+# RewriteRule ^old-page$ /new-page [R=301,L]
+
+# Prevent hotlinking
+RewriteCond %{HTTP_REFERER} !^$
+RewriteCond %{HTTP_REFERER} !^https?://(www\.)?guvendeyimdir\.com [NC]
+RewriteCond %{HTTP_REFERER} !^https?://(www\.)?google\.com [NC]
+RewriteCond %{HTTP_REFERER} !^https?://(www\.)?bing\.com [NC]
+RewriteCond %{HTTP_REFERER} !^https?://(www\.)?yahoo\.com [NC]
+RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [F]
+
+# Custom 404 page
+ErrorDocument 404 /404.php 
