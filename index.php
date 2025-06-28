@@ -120,7 +120,7 @@
             "email": "info@guvenliktarama.com"
         },
         "sameAs": [
-            "https://github.com/huseyinatilgan/security-checker"
+            "https://guvenliktarama.com"
         ]
     }
     </script>
@@ -386,7 +386,7 @@
                 <div>
                     <h4 class="text-lg font-semibold text-gray-800 mb-3">API Endpoint</h4>
                     <div class="bg-gray-50 rounded-lg p-4">
-                        <code class="text-sm text-blue-600">POST /api.php</code>
+                        <code class="text-sm text-blue-600">GET /api.php?target=example.com&o=json</code>
                     </div>
                 </div>
 
@@ -424,7 +424,52 @@
                                 <span class="font-medium text-gray-700">checks[]</span>
                                 <span class="text-gray-600">- Kontrol türleri (opsiyonel, varsayılan: dns, ssl, headers, ports)</span>
                             </div>
+                            <div>
+                                <span class="font-medium text-gray-700">o</span>
+                                <span class="text-gray-600">- Çıktı formatı: <b>json</b> veya <b>text</b> (varsayılan: json)</span>
+                            </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Example Request -->
+                <div>
+                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Örnek GET İstekleri</h4>
+                    <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-green-400 text-sm">cURL (JSON)</span>
+                            <button onclick="copyToClipboard(this)" 
+                                    class="text-gray-400 hover:text-gray-200 transition-colors"
+                                    title="Kopyala">
+                                <i data-feather="copy" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="curl 'https://guvenliktarama.com/api.php?target=google.com&o=json'">
+curl 'https://guvenliktarama.com/api.php?target=google.com&o=json'</pre>
+                    </div>
+                    <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-green-400 text-sm">cURL (TEXT)</span>
+                            <button onclick="copyToClipboard(this)" 
+                                    class="text-gray-400 hover:text-gray-200 transition-colors"
+                                    title="Kopyala">
+                                <i data-feather="copy" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="curl 'https://guvenliktarama.com/api.php?target=google.com&o=text'">
+curl 'https://guvenliktarama.com/api.php?target=google.com&o=text'</pre>
+                    </div>
+                    <div class="bg-gray-900 rounded-lg p-4 mb-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-green-400 text-sm">Doğrudan URL (Tarayıcıda)</span>
+                            <button onclick="copyToClipboard(this)" 
+                                    class="text-gray-400 hover:text-gray-200 transition-colors"
+                                    title="Kopyala">
+                                <i data-feather="copy" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="https://guvenliktarama.com/api.php?target=google.com&o=json">
+https://guvenliktarama.com/api.php?target=google.com&o=json</pre>
                     </div>
                 </div>
 
@@ -456,30 +501,6 @@
                             <span class="font-medium text-gray-700">blacklist</span>
                             <span class="text-gray-600 text-sm">- Kara liste kontrolü</span>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Example Request -->
-                <div>
-                    <h4 class="text-lg font-semibold text-gray-800 mb-3">Örnek İstek</h4>
-                    <div class="bg-gray-900 rounded-lg p-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-green-400 text-sm">cURL</span>
-                            <button onclick="copyToClipboard(this)" 
-                                    class="text-gray-400 hover:text-gray-200 transition-colors"
-                                    title="Kopyala">
-                                <i data-feather="copy" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="curl -X POST https://yourdomain.com/api.php \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'target=google.com&checks[]=dns&checks[]=ssl&checks[]=headers'
-
-# Not: Rate limiting - dakikada maksimum 20 istek">curl -X POST https://yourdomain.com/api.php \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'target=google.com&checks[]=dns&checks[]=ssl&checks[]=headers'
-
-# Not: Rate limiting - dakikada maksimum 20 istek</pre>
                     </div>
                 </div>
 
@@ -635,11 +656,6 @@
                         DNS, SSL/TLS, HTTP headers ve daha fazla güvenlik kontrolü.
                     </p>
                     <div class="flex space-x-4">
-                        <a href="https://github.com/huseyinatilgan/security-checker" 
-                           class="text-gray-400 hover:text-white transition-colors duration-200"
-                           aria-label="GitHub projesini ziyaret et">
-                            <i data-feather="github" class="w-5 h-5"></i>
-                        </a>
                         <a href="mailto:info@guvenliktarama.com" 
                            class="text-gray-400 hover:text-white transition-colors duration-200"
                            aria-label="E-posta gönder">
@@ -702,7 +718,7 @@
                             📄 Veri Gizliliği
                         </a>
                         <span class="hidden md:inline text-gray-600">|</span>
-                        <a href="mailto:privacy@guvendeyimdir.com" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <a href="mailto:privacy@guvenliktarama.com" class="text-gray-400 hover:text-white transition-colors duration-200">
                             📧 İletişim
                         </a>
                         <span class="hidden md:inline text-gray-600">|</span>

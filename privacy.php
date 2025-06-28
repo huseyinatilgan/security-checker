@@ -213,8 +213,8 @@
                                 <i data-feather="mail" class="w-5 h-5 text-blue-600 mr-3"></i>
                                 <div>
                                     <p class="font-medium text-blue-800">E-posta</p>
-                                    <a href="mailto:privacy@guvendeyimdir.com" class="text-blue-600 hover:text-blue-800 transition-colors">
-                                        privacy@guvendeyimdir.com
+                                    <a href="mailto:privacy@guvenliktarama.com" class="text-blue-600 hover:text-blue-800 transition-colors">
+                                        privacy@guvenliktarama.com
                                     </a>
                                 </div>
                             </div>

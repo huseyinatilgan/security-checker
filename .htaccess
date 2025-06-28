@@ -108,4 +108,162 @@ RewriteCond %{HTTP_REFERER} !^https?://(www\.)?yahoo\.com [NC]
 RewriteRule \.(jpg|jpeg|png|gif|css|js)$ - [F]
 
 # Custom 404 page
-ErrorDocument 404 /404.php 
+ErrorDocument 404 /404.php
+
+# Güvenlik Ayarları
+Options -Indexes
+Options -ExecCGI
+Options -FollowSymLinks
+ServerSignature Off
+
+# PHP Güvenlik Ayarları
+php_flag display_errors off
+php_flag log_errors on
+php_value error_log /dev/null
+
+# Dosya Erişim Kısıtlamaları
+<Files "*.log">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.env">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.sql">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.bak">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.backup">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.old">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.tmp">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files "*.temp">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Dizin Erişim Kısıtlamaları
+<DirectoryMatch "^/.*/\.git/">
+    Order allow,deny
+    Deny from all
+</DirectoryMatch>
+
+<DirectoryMatch "^/.*/\.svn/">
+    Order allow,deny
+    Deny from all
+</DirectoryMatch>
+
+# HTTP Headers Güvenlik
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';"
+</IfModule>
+
+# SSL Yönlendirme (HTTPS varsa)
+<IfModule mod_rewrite.c>
+    RewriteCond %{HTTPS} off
+    RewriteCond %{HTTP_HOST} !^localhost [NC]
+    RewriteCond %{HTTP_HOST} !^127\.0\.0\.1 [NC]
+    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# URL Rewriting
+<IfModule mod_rewrite.c>
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^$ index.php [L]
+    
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^api/?$ api.php [L]
+    
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^privacy/?$ privacy.php [L]
+    
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    ErrorDocument 404 /404.php
+</IfModule>
+
+# Rate Limiting (mod_ratelimit varsa)
+<IfModule mod_ratelimit.c>
+    <Location />
+        SetOutputFilter RATE_LIMIT
+        SetEnv rate-limit 400
+    </Location>
+</IfModule>
+
+# Dosya Türü Güvenlik
+<FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|jsp|asp|sh|cgi)$">
+    <IfModule mod_headers.c>
+        Header set X-Content-Type-Options nosniff
+    </IfModule>
+</FilesMatch>
+
+# Kötü Bot Engelleme
+<IfModule mod_rewrite.c>
+    RewriteCond %{HTTP_USER_AGENT} ^$ [OR]
+    RewriteCond %{HTTP_USER_AGENT} ^(java|curl|wget).* [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^.*(libwww-perl|curl|wget|python|nikto|scan).* [NC,OR]
+    RewriteCond %{HTTP_USER_AGENT} ^.*(winhttp|HTTrack|clshttp|archiver|loader|email|harvest|extract|grab|miner).* [NC]
+    RewriteRule .* - [F,L]
+</IfModule>
+
+# IP Engelleme (isteğe bağlı)
+# <RequireAll>
+#     Require not ip 192.168.1.100
+#     Require not ip 10.0.0.50
+# </RequireAll>
+
+# Dosya Upload Güvenlik
+<FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|jsp|asp|sh|cgi|exe|bat|cmd|com|pif|scr|vbs|js)$">
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteRule .* - [F,L]
+    </IfModule>
+</FilesMatch>
+
+# MIME Type Güvenlik
+<IfModule mod_mime.c>
+    RemoveHandler .php .php3 .php4 .php5 .phtml .pl .py .jsp .asp .sh .cgi
+    RemoveType .php .php3 .php4 .php5 .phtml .pl .py .jsp .asp .sh .cgi
+</IfModule>
+
+# Cache Kontrolü
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+</IfModule> 

@@ -38,6 +38,7 @@
 ```bash
 git clone https://github.com/huseyinatilgan/security-checker.git
 cd security-checker
+php -S localhost:8000
 ```
 
 2. **Gerekli Dosyaları Kontrol Edin**
@@ -202,7 +203,6 @@ curl -X POST https://guvenliktarama.com/api.php \
 ## 📞 Destek
 
 - **E-posta**: info@guvenliktarama.com
-- **GitHub**: [security-checker](https://github.com/huseyinatilgan/security-checker)
 - **Website**: [guvenliktarama.com](https://guvenliktarama.com)
 
 ## 📄 Lisans
@@ -340,7 +340,7 @@ security-checker.git/
 - Girilen bilgiler kayıt altında tutulmaz, analiz sonrası silinir.
 - Sonuçlar %100 garanti edilmez, sorumluluk kabul edilmez.
 - Detaylı bilgi için [privacy.php](privacy.php) sayfasını inceleyin.
-- İletişim: [atilganhuseyinn@gmail.com](mailto:atilganhuseyinn@gmail.com)
+- İletişim: [info@guvenliktarama.com](mailto:info@guvenliktarama.com)
 
 ---
 
@@ -473,3 +473,96 @@ curl -X POST https://yourdomain.com/api.php \
 - **Detaylı rapor görüntüleme** - Renkli durum göstergeleri
 - **RAW JSON görüntüleme** - Geliştiriciler için JSON çıktısı
 - **Kopyalama özelliği** - Sonuçları ve JSON'u kopyalama 
+
+# Güvenlik Kontrol Aracı API
+
+## Özellikler
+- Sadece GET ile çalışır, parametreler URL üzerinden gönderilir
+- API anahtarı gerektirmez (herkes kullanabilir)
+- Rate limit: Dakikada 20 istek
+- Çıktı formatı: JSON (varsayılan) veya TEXT (o parametresi ile)
+- Güvenlik: CORS, input validation, rate limit, XSS/CSRF koruma
+
+## API Endpoint
+```
+https://guvenliktarama.com/api.php
+```
+
+## Parametreler
+| Parametre | Zorunlu | Açıklama |
+|-----------|---------|----------|
+| target    | Evet    | Domain veya IP adresi |
+| port      | Hayır   | Port numarası |
+| checks[]  | Hayır   | Kontrol türleri (dns, ssl, headers, ports, email, blacklist) |
+| o         | Hayır   | Çıktı formatı: `json` (varsayılan) veya `text` |
+
+## Örnek GET İstekleri
+
+**JSON formatı:**
+```
+https://guvenliktarama.com/api.php?target=google.com&o=json
+```
+
+**TEXT formatı:**
+```
+https://guvenliktarama.com/api.php?target=google.com&o=text
+```
+
+**Port ve özel kontrollerle:**
+```
+https://guvenliktarama.com/api.php?target=8.8.8.8&port=53&checks[]=dns&checks[]=ports&o=text
+```
+
+## cURL ile Kullanım
+```bash
+curl 'https://guvenliktarama.com/api.php?target=google.com&o=json'
+curl 'https://guvenliktarama.com/api.php?target=google.com&o=text'
+```
+
+## Yanıt Örnekleri
+
+**JSON:**
+```json
+{
+  "success": true,
+  "timestamp": "2025-06-28 13:28:53",
+  "request": {
+    "target": "google.com",
+    "port": null,
+    "checks": ["dns", "ssl", "headers", "ports"]
+  },
+  "data": {
+    "summary": {"passed": 2, "warnings": 1, "failed": 0, "total": 3},
+    "results": [
+      {"title": "DNS Güvenlik Kontrolü", ...},
+      {"title": "SSL/TLS Güvenlik Kontrolü", ...}
+    ]
+  }
+}
+```
+
+**TEXT:**
+```
+Güvenlik Kontrol Sonucu
+Hedef: google.com
+...
+Toplam Test: 4
+Başarılı: 2
+Uyarı: 1
+Başarısız: 0
+```
+
+## Rate Limiting
+- Dakikada maksimum 20 istek gönderebilirsiniz.
+- Limit aşıldığında 429 hatası döner.
+
+## Güvenlik
+- API anahtarı gerektirmez.
+- Rate limit, CORS, input validation ve güvenlik header'ları aktiftir.
+
+## Lisans
+MIT
+
+---
+
+Daha fazla bilgi ve canlı demo için: [https://guvenliktarama.com](https://guvenliktarama.com) 
