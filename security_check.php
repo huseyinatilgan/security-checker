@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
 // Güvenlik headers
@@ -199,62 +199,129 @@ class SecurityChecker {
         try {
             $details = "SSL/TLS Kontrol Sonuçları:\n\n";
             
+            // Timeout ayarı
             $context = stream_context_create([
                 'ssl' => [
-                    'capture_peer_cert' => true,
                     'verify_peer' => false,
                     'verify_peer_name' => false,
+                    'timeout' => 10
                 ]
             ]);
-
-            $port = $this->port ?: 443;
-            $connection = @stream_socket_client(
-                "ssl://{$this->target}:{$port}",
-                $errno,
-                $errstr,
-                10,
-                STREAM_CLIENT_CONNECT,
+            
+            // SSL bağlantısı kur
+            $socket = @stream_socket_client(
+                "ssl://{$this->target}:443", 
+                $errno, 
+                $errstr, 
+                10, 
+                STREAM_CLIENT_CONNECT, 
                 $context
             );
-
-            if ($connection) {
-                $details .= "✓ SSL bağlantısı başarılı\n";
+            
+            if (!$socket) {
+                $this->addResult($title, $description, 'error', 'SSL bağlantısı kurulamadı: ' . $errstr);
+                return;
+            }
+            
+            // Sertifika bilgilerini al
+            $cert = stream_context_get_params($socket);
+            $certData = stream_get_meta_data($socket);
+            
+            if (isset($certData['crypto'])) {
+                $details .= "✓ SSL/TLS bağlantısı başarılı\n";
+                $details .= "  Protokol: " . $certData['crypto']['protocol'] . "\n";
+                $details .= "  Cipher: " . $certData['crypto']['cipher_name'] . "\n";
+                $details .= "  Key Exchange: " . $certData['crypto']['key_exchange'] . "\n";
+            }
+            
+            // Sertifika bilgilerini al
+            $certInfo = stream_context_get_params($socket);
+            if (isset($certInfo['options']['ssl']['peer_certificate'])) {
+                $cert = openssl_x509_parse($certInfo['options']['ssl']['peer_certificate']);
                 
-                $cert = stream_context_get_params($connection);
-                if (isset($cert['options']['ssl']['peer_certificate'])) {
-                    $certData = openssl_x509_parse($cert['options']['ssl']['peer_certificate']);
+                if ($cert) {
+                    $details .= "\n📋 Sertifika Bilgileri:\n";
+                    $details .= "  Konu: " . $cert['subject']['CN'] . "\n";
+                    $details .= "  Yayınlayan: " . $cert['issuer']['CN'] . "\n";
+                    $details .= "  Geçerlilik Başlangıcı: " . date('Y-m-d', $cert['validFrom_time_t']) . "\n";
+                    $details .= "  Geçerlilik Bitişi: " . date('Y-m-d', $cert['validTo_time_t']) . "\n";
                     
-                    if ($certData) {
-                        $details .= "✓ Sertifika bulundu\n";
-                        $details .= "  Konu: " . $certData['subject']['CN'] . "\n";
-                        $details .= "  Yayınlayan: " . $certData['issuer']['CN'] . "\n";
-                        $details .= "  Geçerlilik Başlangıcı: " . date('Y-m-d H:i:s', $certData['validFrom_time_t']) . "\n";
-                        $details .= "  Geçerlilik Bitişi: " . date('Y-m-d H:i:s', $certData['validTo_time_t']) . "\n";
+                    // Sertifika geçerlilik kontrolü
+                    $currentTime = time();
+                    if ($currentTime < $cert['validFrom_time_t']) {
+                        $details .= "  ⚠ Sertifika henüz geçerli değil\n";
+                        $status = 'warning';
+                    } elseif ($currentTime > $cert['validTo_time_t']) {
+                        $details .= "  ✗ Sertifika süresi dolmuş\n";
+                        $status = 'error';
+                    } else {
+                        $daysLeft = floor(($cert['validTo_time_t'] - $currentTime) / 86400);
+                        $details .= "  ✓ Sertifika geçerli (Kalan gün: {$daysLeft})\n";
                         
-                        // Sertifika geçerlilik kontrolü
-                        $now = time();
-                        if ($certData['validTo_time_t'] < $now) {
-                            $details .= "⚠ Sertifika süresi dolmuş!\n";
-                            $status = 'error';
-                        } elseif ($certData['validTo_time_t'] < ($now + 30 * 24 * 60 * 60)) {
-                            $details .= "⚠ Sertifika 30 gün içinde sona erecek\n";
+                        if ($daysLeft < 30) {
+                            $details .= "  ⚠ Sertifika yakında sona erecek\n";
                             $status = 'warning';
                         } else {
-                            $details .= "✓ Sertifika geçerli\n";
                             $status = 'success';
                         }
                     }
+                    
+                    // Güvenlik protokolleri kontrolü
+                    $details .= "\n🔒 Güvenlik Protokolleri:\n";
+                    $supportedProtocols = [];
+                    
+                    // TLS versiyonlarını test et
+                    $tlsVersions = ['tlsv1.3', 'tlsv1.2', 'tlsv1.1', 'tlsv1.0'];
+                    foreach ($tlsVersions as $version) {
+                        $testContext = stream_context_create([
+                            'ssl' => [
+                                'verify_peer' => false,
+                                'verify_peer_name' => false,
+                                'timeout' => 5,
+                                'crypto_method' => constant('STREAM_CRYPTO_METHOD_' . strtoupper($version))
+                            ]
+                        ]);
+                        
+                        $testSocket = @stream_socket_client(
+                            "ssl://{$this->target}:443", 
+                            $errno, 
+                            $errstr, 
+                            5, 
+                            STREAM_CLIENT_CONNECT, 
+                            $testContext
+                        );
+                        
+                        if ($testSocket) {
+                            $supportedProtocols[] = $version;
+                            fclose($testSocket);
+                        }
+                    }
+                    
+                    if (in_array('tlsv1.3', $supportedProtocols)) {
+                        $details .= "  ✓ TLS 1.3 destekleniyor (En güvenli)\n";
+                    } elseif (in_array('tlsv1.2', $supportedProtocols)) {
+                        $details .= "  ✓ TLS 1.2 destekleniyor (Güvenli)\n";
+                    } else {
+                        $details .= "  ⚠ Eski TLS versiyonları kullanılıyor\n";
+                    }
+                    
+                    if (in_array('tlsv1.0', $supportedProtocols) || in_array('tlsv1.1', $supportedProtocols)) {
+                        $details .= "  ⚠ Eski TLS versiyonları (1.0/1.1) destekleniyor\n";
+                        if ($status === 'success') $status = 'warning';
+                    }
+                    
+                } else {
+                    $details .= "⚠ Sertifika bilgileri alınamadı\n";
+                    $status = 'warning';
                 }
-                
-                fclose($connection);
             } else {
-                $details .= "⚠ SSL bağlantısı kurulamadı\n";
-                $details .= "  Hata: {$errstr} (Kod: {$errno})\n";
+                $details .= "⚠ SSL sertifikası bulunamadı\n";
                 $status = 'error';
             }
-
+            
+            fclose($socket);
             $this->addResult($title, $description, $status, $details);
-
+            
         } catch (Exception $e) {
             $this->addResult($title, $description, 'error', 'SSL kontrolü sırasında hata: ' . $e->getMessage());
         }
@@ -455,78 +522,97 @@ class SecurityChecker {
 
     private function checkPorts() {
         $title = 'Port Tarama Kontrolü';
-        $description = 'Yaygın portların durumu kontrol ediliyor';
+        $description = 'Açık portlar ve servisler kontrol ediliyor';
         
         try {
             $details = "Port Tarama Sonuçları:\n\n";
             
-            // Güvenli port listesi (sadece yaygın portlar)
-            $commonPorts = [
-                21 => 'FTP',
-                22 => 'SSH',
-                23 => 'Telnet',
-                25 => 'SMTP',
-                53 => 'DNS',
-                80 => 'HTTP',
-                110 => 'POP3',
-                143 => 'IMAP',
-                443 => 'HTTPS',
-                993 => 'IMAPS',
-                995 => 'POP3S',
-                3306 => 'MySQL',
-                3389 => 'RDP',
-                5432 => 'PostgreSQL',
-                8080 => 'HTTP Alt Port'
-            ];
-
-            // Port tarama limiti (güvenlik için)
-            $maxPortsToScan = 10;
-            $scannedPorts = 0;
-            $openPorts = 0;
-            $totalChecked = 0;
-
-            foreach ($commonPorts as $port => $service) {
-                if ($scannedPorts >= $maxPortsToScan) {
-                    break; // Güvenlik limiti
+            // Güvenlik limitleri
+            $maxPorts = 10; // Maksimum 10 port taranabilir
+            $timeout = 3; // 3 saniye timeout
+            
+            // Varsayılan portlar
+            $commonPorts = [21, 22, 23, 25, 53, 80, 110, 143, 443, 993, 995, 3306, 5432, 8080];
+            
+            // Eğer özel port belirtilmişse, sadece o portu tara
+            if ($this->port !== null) {
+                $portsToScan = [$this->port];
+            } else {
+                $portsToScan = array_slice($commonPorts, 0, $maxPorts);
+            }
+            
+            $openPorts = [];
+            $closedPorts = [];
+            
+            foreach ($portsToScan as $port) {
+                // Port numarası validasyonu
+                if ($port < 1 || $port > 65535) {
+                    continue;
                 }
                 
-                $totalChecked++;
-                $scannedPorts++;
-                
-                // Timeout ile güvenli bağlantı
-                $connection = @fsockopen($this->target, $port, $errno, $errstr, 2);
+                $connection = @fsockopen($this->target, $port, $errno, $errstr, $timeout);
                 
                 if ($connection) {
-                    $details .= "⚠ Port {$port} ({$service}): AÇIK\n";
-                    $openPorts++;
+                    $openPorts[] = $port;
+                    $serviceName = $this->getServiceName($port);
+                    $details .= "✓ Port {$port} açık ({$serviceName})\n";
                     fclose($connection);
                 } else {
-                    $details .= "✓ Port {$port} ({$service}): KAPALI\n";
+                    $closedPorts[] = $port;
+                    $details .= "✗ Port {$port} kapalı\n";
                 }
             }
-
-            $details .= "\nÖzet:\n";
-            $details .= "  Toplam kontrol edilen port: {$totalChecked}\n";
-            $details .= "  Açık port sayısı: {$openPorts}\n";
-            $details .= "  Güvenlik: Maksimum {$maxPortsToScan} port tarandı\n";
-
+            
+            $details .= "\n📊 Port Tarama Özeti:\n";
+            $details .= "  • Açık portlar: " . count($openPorts) . "\n";
+            $details .= "  • Kapalı portlar: " . count($closedPorts) . "\n";
+            $details .= "  • Toplam taranan: " . count($portsToScan) . "\n";
+            
             // Güvenlik değerlendirmesi
-            if ($openPorts == 0) {
-                $status = 'success';
-                $details .= "  Durum: Tüm portlar kapalı (Güvenli)\n";
-            } elseif ($openPorts <= 3) {
+            $dangerousPorts = [21, 23, 25, 110, 143]; // FTP, Telnet, SMTP, POP3, IMAP
+            $openDangerousPorts = array_intersect($openPorts, $dangerousPorts);
+            
+            if (!empty($openDangerousPorts)) {
+                $details .= "\n⚠ Güvenlik Uyarısı:\n";
+                foreach ($openDangerousPorts as $port) {
+                    $serviceName = $this->getServiceName($port);
+                    $details .= "  • Port {$port} ({$serviceName}) güvenlik riski oluşturabilir\n";
+                }
                 $status = 'warning';
-                $details .= "  Durum: Az sayıda port açık\n";
+            } elseif (empty($openPorts)) {
+                $details .= "\n✓ Tüm taranan portlar kapalı (güvenli)\n";
+                $status = 'success';
             } else {
-                $status = 'error';
-                $details .= "  Durum: Çok sayıda port açık (Güvenlik riski)\n";
+                $details .= "\n✓ Açık portlar güvenlik riski oluşturmuyor\n";
+                $status = 'success';
             }
-
+            
             $this->addResult($title, $description, $status, $details);
-
+            
         } catch (Exception $e) {
             $this->addResult($title, $description, 'error', 'Port tarama sırasında hata: ' . $e->getMessage());
         }
+    }
+    
+    private function getServiceName($port) {
+        $services = [
+            21 => 'FTP',
+            22 => 'SSH',
+            23 => 'Telnet',
+            25 => 'SMTP',
+            53 => 'DNS',
+            80 => 'HTTP',
+            110 => 'POP3',
+            143 => 'IMAP',
+            443 => 'HTTPS',
+            993 => 'IMAPS',
+            995 => 'POP3S',
+            3306 => 'MySQL',
+            5432 => 'PostgreSQL',
+            8080 => 'HTTP-Alt'
+        ];
+        
+        return $services[$port] ?? 'Unknown';
     }
 
     private function checkEmailSecurity() {
@@ -833,13 +919,13 @@ class SecurityChecker {
 
 // Ana işlem
 try {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        throw new Exception('Sadece POST istekleri kabul edilir');
+    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+        throw new Exception('Sadece GET istekleri kabul edilir');
     }
 
-    $target = $_POST['target'] ?? '';
-    $port = $_POST['port'] ?? null;
-    $checks = $_POST['checks'] ?? [];
+    $target = $_GET['target'] ?? '';
+    $port = $_GET['port'] ?? null;
+    $checks = $_GET['checks'] ?? [];
 
     if (empty($target)) {
         throw new Exception('Hedef belirtilmedi');

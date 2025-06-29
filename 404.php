@@ -22,6 +22,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     
+    <!-- Google tag (gtag.js) -->
+    <?php if (getenv('GOOGLE_ANALYTICS_ID')): ?>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo htmlspecialchars(getenv('GOOGLE_ANALYTICS_ID')); ?>"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '<?php echo htmlspecialchars(getenv('GOOGLE_ANALYTICS_ID')); ?>');
+    </script>
+    <?php endif; ?>
+    
     <style>
         .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

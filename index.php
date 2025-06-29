@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- Primary Meta Tags -->
-    <title>Güvenlik Kontrol Aracı - Domain ve IP Güvenlik Analizi | GüvenDeyimdir</title>
-    <meta name="title" content="Güvenlik Kontrol Aracı - Domain ve IP Güvenlik Analizi | GüvenDeyimdir">
+    <title>Güvenlik Kontrol Aracı - Domain ve IP Güvenlik Analizi | guvenliktarama.com</title>
+    <meta name="title" content="Güvenlik Kontrol Aracı - Domain ve IP Güvenlik Analizi | guvenliktarama.com">
     <meta name="description" content="Ücretsiz domain ve IP adresi güvenlik kontrol aracı. DNS, SSL/TLS, HTTP headers, port tarama, e-posta güvenliği ve kara liste kontrollerini gerçekleştirin. Güvenlik zaafiyetlerini tespit edin.">
     <meta name="keywords" content="güvenlik kontrol, domain güvenliği, IP güvenliği, SSL kontrol, DNS güvenliği, port tarama, güvenlik analizi, web güvenliği, siber güvenlik, güvenlik testi">
-    <meta name="author" content="GüvenDeyimdir">
+    <meta name="author" content="Güvenlik Tarama">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="language" content="Turkish">
     <meta name="revisit-after" content="7 days">
@@ -17,14 +17,14 @@
     <meta name="rating" content="general">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://guvenliktarama.com/">
+    <link rel="canonical" href="https://www.guvenliktarama.com/">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://guvenliktarama.com/">
+    <meta property="og:url" content="https://www.guvenliktarama.com/">
     <meta property="og:title" content="Güvenlik Tarama - Domain ve IP Güvenlik Analizi">
     <meta property="og:description" content="Ücretsiz domain ve IP adresi güvenlik kontrol aracı. DNS, SSL/TLS, HTTP headers, port tarama ve güvenlik kontrollerini gerçekleştirin.">
-    <meta property="og:image" content="https://guvenliktarama.com/images/security-checker-og.jpg">
+    <meta property="og:image" content="https://www.guvenliktarama.com/images/security-checker-og.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Güvenlik Tarama - Güvenlik Analizi">
@@ -33,16 +33,16 @@
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://guvenliktarama.com/">
+    <meta property="twitter:url" content="https://www.guvenliktarama.com/">
     <meta property="twitter:title" content="Güvenlik Tarama - Domain ve IP Güvenlik Analizi">
     <meta property="twitter:description" content="Ücretsiz domain ve IP adresi güvenlik kontrol aracı. Güvenlik zaafiyetlerini tespit edin.">
-    <meta property="twitter:image" content="https://guvenliktarama.com/images/security-checker-twitter.jpg">
+    <meta property="twitter:image" content="https://www.guvenliktarama.com/images/security-checker-twitter.jpg">
     <meta property="twitter:image:alt" content="Güvenlik Tarama">
     
     <!-- Additional SEO Meta Tags -->
     <meta name="theme-color" content="#667eea">
     <meta name="msapplication-TileColor" content="#667eea">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Güvenlik Kontrol">
     
@@ -66,7 +66,7 @@
         "@type": "WebApplication",
         "name": "Güvenlik Tarama",
         "description": "Ücretsiz domain ve IP adresi güvenlik kontrol aracı. DNS, SSL/TLS, HTTP headers, port tarama ve güvenlik kontrollerini gerçekleştirin.",
-        "url": "https://guvenliktarama.com/",
+        "url": "https://www.guvenliktarama.com/",
         "applicationCategory": "SecurityApplication",
         "operatingSystem": "Web Browser",
         "offers": {
@@ -77,7 +77,7 @@
         "author": {
             "@type": "Organization",
             "name": "Güvenlik Tarama",
-            "url": "https://guvenliktarama.com/"
+            "url": "https://www.guvenliktarama.com/"
         },
         "creator": {
             "@type": "Organization",
@@ -86,7 +86,7 @@
         "publisher": {
             "@type": "Organization",
             "name": "Güvenlik Tarama",
-            "url": "https://guvenliktarama.com/"
+            "url": "https://www.guvenliktarama.com/"
         },
         "datePublished": "2024-01-15",
         "dateModified": "2024-01-15",
@@ -100,7 +100,7 @@
             "E-posta Güvenlik Kontrolü",
             "Kara Liste Kontrolü"
         ],
-        "screenshot": "https://guvenliktarama.com/images/security-checker-screenshot.jpg",
+        "screenshot": "https://www.guvenliktarama.com/images/security-checker-screenshot.jpg",
         "softwareVersion": "1.0.0"
     }
     </script>
@@ -111,8 +111,8 @@
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "Güvenlik Tarama",
-        "url": "https://guvenliktarama.com/",
-        "logo": "https://guvenliktarama.com/images/logo.png",
+        "url": "https://www.guvenliktarama.com/",
+        "logo": "https://www.guvenliktarama.com/images/logo.png",
         "description": "Güvenlik kontrol araçları ve siber güvenlik çözümleri",
         "contactPoint": {
             "@type": "ContactPoint",
@@ -120,13 +120,14 @@
             "email": "info@guvenliktarama.com"
         },
         "sameAs": [
-            "https://guvenliktarama.com"
+            "https://www.guvenliktarama.com"
         ]
     }
     </script>
     
     <!-- CSS and JavaScript -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+    <link rel="stylesheet" href="dist/output.css">
     <script src="https://unpkg.com/feather-icons"></script>
     
     <!-- Custom Styles -->
@@ -162,6 +163,17 @@
             .gradient-bg { background: #667eea !important; }
         }
     </style>
+
+    <!-- Google tag (gtag.js) -->
+    <?php if (getenv('GOOGLE_ANALYTICS_ID')): ?>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo htmlspecialchars(getenv('GOOGLE_ANALYTICS_ID')); ?>"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', '<?php echo htmlspecialchars(getenv('GOOGLE_ANALYTICS_ID')); ?>');
+    </script>
+    <?php endif; ?>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Header -->
@@ -444,8 +456,8 @@
                                 <i data-feather="copy" class="w-4 h-4"></i>
                             </button>
                         </div>
-                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="curl 'https://guvenliktarama.com/api.php?target=google.com&o=json'">
-curl 'https://guvenliktarama.com/api.php?target=google.com&o=json'</pre>
+                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="curl 'https://www.guvenliktarama.com/api.php?target=google.com&o=json'">
+curl 'https://www.guvenliktarama.com/api.php?target=google.com&o=json'</pre>
                     </div>
                     <div class="bg-gray-900 rounded-lg p-4 mb-4">
                         <div class="flex justify-between items-center mb-2">
@@ -456,8 +468,8 @@ curl 'https://guvenliktarama.com/api.php?target=google.com&o=json'</pre>
                                 <i data-feather="copy" class="w-4 h-4"></i>
                             </button>
                         </div>
-                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="curl 'https://guvenliktarama.com/api.php?target=google.com&o=text'">
-curl 'https://guvenliktarama.com/api.php?target=google.com&o=text'</pre>
+                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="curl 'https://www.guvenliktarama.com/api.php?target=google.com&o=text'">
+curl 'https://www.guvenliktarama.com/api.php?target=google.com&o=text'</pre>
                     </div>
                     <div class="bg-gray-900 rounded-lg p-4 mb-4">
                         <div class="flex justify-between items-center mb-2">
@@ -468,8 +480,8 @@ curl 'https://guvenliktarama.com/api.php?target=google.com&o=text'</pre>
                                 <i data-feather="copy" class="w-4 h-4"></i>
                             </button>
                         </div>
-                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="https://guvenliktarama.com/api.php?target=google.com&o=json">
-https://guvenliktarama.com/api.php?target=google.com&o=json</pre>
+                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="https://www.guvenliktarama.com/api.php?target=google.com&o=json">
+https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
                     </div>
                 </div>
 
@@ -774,9 +786,14 @@ https://guvenliktarama.com/api.php?target=google.com&o=json</pre>
             announceToScreenReader('Güvenlik analizi başlatılıyor, lütfen bekleyin.');
 
             try {
-                const response = await fetch('security_check.php', {
-                    method: 'POST',
-                    body: formData
+                // Form verilerini URL parametrelerine çevir
+                const params = new URLSearchParams();
+                params.append('target', target);
+                if (port) params.append('port', port);
+                checks.forEach(check => params.append('checks[]', check));
+                
+                const response = await fetch(`security_check.php?${params.toString()}`, {
+                    method: 'GET'
                 });
 
                 if (!response.ok) {

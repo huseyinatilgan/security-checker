@@ -1,3 +1,6 @@
+# Google Analytics Environment Variable
+SetEnv GOOGLE_ANALYTICS_ID G-6JMFXNNE2Q
+
 # SEO ve Performance Optimizations
 # Güvenlik Kontrol Aracı - .htaccess
 

@@ -88,9 +88,7 @@ php -S localhost:8000
 
 ### Örnek İstek
 ```bash
-curl -X POST https://guvenliktarama.com/api.php \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'target=google.com&checks[]=dns&checks[]=ssl&checks[]=headers'
+curl 'https://guvenliktarama.com/api.php?target=google.com&checks[]=dns&checks[]=ssl&o=json'
 ```
 
 ### Desteklenen Kontroller
@@ -125,7 +123,6 @@ curl -X POST https://guvenliktarama.com/api.php \
 - Rate limiting (20 istek/dakika)
 - Input validation
 - CORS protection
-- API key authentication
 - SQL injection koruması
 - XSS koruması
 
@@ -205,10 +202,6 @@ curl -X POST https://guvenliktarama.com/api.php \
 - **E-posta**: info@guvenliktarama.com
 - **Website**: [guvenliktarama.com](https://guvenliktarama.com)
 
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır. Ticari kullanım için değildir.
-
 ---
 
 **🔒 Güvenlik Tarama** - %100 SEO uyumlu, erişilebilir ve performanslı web uygulaması.
@@ -252,6 +245,38 @@ git clone https://github.com/huseyinatilgan/security-checker.git
 cd security-checker
 php -S localhost:8000
 ```
+
+2. **Environment dosyasını oluşturun:**
+```bash
+cp env.example .env
+```
+
+3. **Google Analytics ID'nizi ayarlayın:**
+```bash
+# .env dosyasını düzenleyin
+GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
+```
+
+4. **Web sunucusunu yapılandırın:**
+   - Document root'u proje klasörüne yönlendirin
+   - .htaccess dosyasının çalıştığından emin olun
+
+### Google Analytics Kurulumu
+
+Google Analytics'i etkinleştirmek için:
+
+1. `.env` dosyasında `GOOGLE_ANALYTICS_ID` değişkenini ayarlayın:
+```
+GOOGLE_ANALYTICS_ID=G-6JMFXNNE2Q
+```
+
+2. Environment variable'ı sunucunuzda ayarlayın:
+   - **Apache:** `.htaccess` dosyasına `SetEnv GOOGLE_ANALYTICS_ID G-6JMFXNNE2Q` ekleyin
+   - **Nginx:** `fastcgi_param GOOGLE_ANALYTICS_ID "G-6JMFXNNE2Q";` ekleyin
+   - **cPanel:** Environment Variables bölümünden ayarlayın
+
+3. **Güvenlik:** Google Analytics ID'nizi asla GitHub'a pushlamayın!
+
 ---
 
 ## 🖥️ Kullanım
@@ -269,7 +294,7 @@ php -S localhost:8000
 ### Endpoint
 
 ```
-POST /api.php
+GET /api.php
 ```
 
 ### Parametreler
@@ -279,6 +304,7 @@ POST /api.php
 | target    | Evet    | Domain veya IP adresi   |
 | port      | Hayır   | Port numarası           |
 | checks[]  | Hayır   | Kontrol türleri (dizi)  |
+| o         | Hayır   | Çıktı formatı (json/text) |
 
 ### Rate Limiting
 
@@ -287,9 +313,7 @@ POST /api.php
 ### Örnek cURL
 
 ```bash
-curl -X POST http://yourdomain:8000/api.php \
-  -H 'Content-Type: application/x-www-form-urlencoded' \
-  -d 'target=google.com&checks[]=dns&checks[]=ssl'
+curl 'https://guvenliktarama.com/api.php?target=google.com&checks[]=dns&checks[]=ssl&o=json'
 ```
 
 ### Örnek Yanıt
@@ -313,7 +337,6 @@ curl -X POST http://yourdomain:8000/api.php \
 ## 🛡️ Güvenlik
 
 - **CORS**: Sadece izin verilen origin'ler
-- **API Anahtarı**: Bearer token ile güvenli erişim (production için)
 - **Rate Limiting**: 20 istek/dakika
 - **Input Validation**: Domain/IP ve port kontrolü
 - **Güvenlik Headers**: XSS, Clickjacking, MIME sniffing koruması
@@ -347,7 +370,6 @@ security-checker.git/
 ## 🧑‍💻 Geliştirici Notları
 
 - Yeni kontrol eklemek için `SecurityChecker` sınıfına fonksiyon ekleyin.
-- API anahtarlarını `.env` dosyasından yönetin.
 - Rate limiting ve logging ayarlarını `security_config.php` ile özelleştirin.
 
 ---
@@ -355,7 +377,7 @@ security-checker.git/
 ## 🏁 Canlıya Geçiş
 
 1. **SSL zorunlu**
-2. **API anahtarı ve CORS whitelist ayarlarını yapın**
+2. **CORS whitelist ayarlarını yapın**
 3. **Sunucu ve dosya izinlerini kontrol edin**
 4. **Güvenlik ve performans testlerini tamamlayın**
 
@@ -412,27 +434,24 @@ private function checkNewSecurity() {
 
 Herhangi bir sorun veya öneri için issue açabilirsiniz.
 
-
-**🔒 Güvenlik Kontrol Aracı** -  Güvenlik analizi için geliştirilmiştir
+**🔒 Güvenlik Kontrol Aracı** - Güvenlik analizi için geliştirilmiştir
 
 ## 🔌 API Kullanımı
 
 ### Endpoint
 ```
-POST /api.php
+GET /api.php
 ```
 
 ### Parametreler
 - `target` (zorunlu): Domain veya IP adresi
 - `port` (opsiyonel): Port numarası
 - `checks[]` (opsiyonel): Kontrol türleri dizisi
+- `o` (opsiyonel): Çıktı formatı (json/text)
 
 ### Örnek İstek
 ```bash
-curl -X POST https://yourdomain.com/api.php \
-  -H 'Authorization: Bearer YOUR_API_KEY' \
-  -H 'Content-Type: application/json' \
-  -d '{"target":"example.com"}'
+curl 'https://guvenliktarama.com/api.php?target=example.com&o=json'
 ```
 
 ### Örnek Yanıt
@@ -460,9 +479,8 @@ curl -X POST https://yourdomain.com/api.php \
 ### API Özellikleri
 - **Rate Limiting**: 20 istek/dakika
 - **CORS Desteği**: Cross-origin istekler
-- **JSON/Form Data**: Her iki format desteklenir
+- **JSON/Text Çıktı**: Her iki format desteklenir
 - **Hata Yönetimi**: Detaylı hata mesajları
-- **API Anahtarı**: Opsiyonel güvenlik (production için) 
 
 ### ✅ Frontend (index.php)
 - **Modern Tailwind CSS tasarımı** - Gradient arka planlar, hover efektleri
@@ -559,9 +577,6 @@ Başarısız: 0
 ## Güvenlik
 - API anahtarı gerektirmez.
 - Rate limit, CORS, input validation ve güvenlik header'ları aktiftir.
-
-## Lisans
-MIT
 
 ---
 
