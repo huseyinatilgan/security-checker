@@ -165,15 +165,13 @@
     </style>
 
     <!-- Google tag (gtag.js) -->
-    <?php if (getenv('GOOGLE_ANALYTICS_ID')): ?>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo htmlspecialchars(getenv('GOOGLE_ANALYTICS_ID')); ?>"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6JMFXNNE2Q"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', '<?php echo htmlspecialchars(getenv('GOOGLE_ANALYTICS_ID')); ?>');
+      gtag('config', 'G-6JMFXNNE2Q');
     </script>
-    <?php endif; ?>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Header -->
