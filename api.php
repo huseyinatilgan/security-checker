@@ -95,6 +95,10 @@ if (!checkRateLimit($clientIP)) {
 // --- Parametre Validasyonu ---
 function validateTarget($target) {
     if (empty($target) || strlen($target) > 253) return false;
+    
+    // URL'den domain kısmını çıkar
+    $target = extractDomainFromUrl($target);
+    
     $dangerousChars = ['<', '>', '"', "'", '&', ';', '|', '`', '$', '(', ')', '{', '}', '[', ']'];
     foreach ($dangerousChars as $char) if (strpos($target, $char) !== false) return false;
     if (filter_var($target, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
@@ -106,6 +110,28 @@ function validateTarget($target) {
     }
     return false;
 }
+
+function extractDomainFromUrl($url) {
+    // URL'den domain kısmını çıkar
+    $url = trim($url);
+    
+    // Eğer http:// veya https:// ile başlıyorsa
+    if (preg_match('/^https?:\/\//', $url)) {
+        $parsedUrl = parse_url($url);
+        if (isset($parsedUrl['host'])) {
+            return $parsedUrl['host'];
+        }
+    }
+    
+    // Eğer www. ile başlıyorsa
+    if (strpos($url, 'www.') === 0) {
+        return substr($url, 4);
+    }
+    
+    // Eğer sadece domain ise
+    return $url;
+}
+
 if (empty($target)) {
     apiError('Target parameter is required', 400, $outputType, ['required_parameters' => ['target']]);
 }

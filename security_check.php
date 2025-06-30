@@ -33,7 +33,12 @@ class SecurityChecker {
     }
 
     private function sanitizeInput($input) {
-        return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
+        $input = trim($input);
+        
+        // URL'den domain kısmını çıkar
+        $input = $this->extractDomainFromUrl($input);
+        
+        return htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
     }
 
     private function validateTarget($target) {
@@ -41,6 +46,9 @@ class SecurityChecker {
         if (empty($target)) {
             return false;
         }
+        
+        // URL'den domain kısmını çıkar
+        $target = $this->extractDomainFromUrl($target);
         
         // Uzunluk kontrolü
         if (strlen($target) > 253) {
@@ -71,6 +79,27 @@ class SecurityChecker {
         }
         
         return false;
+    }
+
+    private function extractDomainFromUrl($url) {
+        // URL'den domain kısmını çıkar
+        $url = trim($url);
+        
+        // Eğer http:// veya https:// ile başlıyorsa
+        if (preg_match('/^https?:\/\//', $url)) {
+            $parsedUrl = parse_url($url);
+            if (isset($parsedUrl['host'])) {
+                return $parsedUrl['host'];
+            }
+        }
+        
+        // Eğer www. ile başlıyorsa
+        if (strpos($url, 'www.') === 0) {
+            return substr($url, 4);
+        }
+        
+        // Eğer sadece domain ise
+        return $url;
     }
 
     public function runChecks() {

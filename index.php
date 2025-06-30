@@ -254,7 +254,7 @@
                                 <input type="text" 
                                        id="target" 
                                        name="target" 
-                                       placeholder="örn: example.com veya 192.168.1.1" 
+                                       placeholder="örn: example.com, https://example.com veya 192.168.1.1" 
                                        class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                        required
                                        aria-describedby="target-help"
@@ -267,7 +267,7 @@
                                        aria-describedby="port-help">
                             </div>
                             <p id="target-help" class="text-sm text-gray-500 mt-2">
-                                IP adresi için port belirtmek isterseniz, port alanını kullanabilirsiniz.
+                                Domain adı, tam URL (https://example.com) veya IP adresi girebilirsiniz. URL'lerden domain kısmı otomatik olarak çıkarılır.
                             </p>
                             <p id="port-help" class="text-sm text-gray-500 mt-1">
                                 Port numarası 1-65535 arasında olmalıdır.

@@ -4,6 +4,12 @@
 
 ## 🌟 Yeni SEO Özellikleri
 
+### ✅ URL Desteği (Yeni!)
+- **Tam URL Desteği**: `https://example.com`, `http://example.com` formatlarını destekler
+- **Otomatik Domain Çıkarma**: URL'lerden domain kısmı otomatik olarak çıkarılır
+- **www Desteği**: `www.example.com` formatını destekler
+- **Esnek Giriş**: Domain adı, IP adresi veya tam URL kabul eder
+
 ### ✅ Tam SEO Optimizasyonu
 - **Meta Etiketleri**: Kapsamlı meta description, keywords, author bilgileri
 - **Open Graph**: Facebook ve sosyal medya paylaşımları için optimize edilmiş
@@ -86,9 +92,22 @@ php -S localhost:8000
 - **Limit**: 20 istek/dakika
 - **Header**: `X-RateLimit-Remaining`
 
+### Desteklenen URL Formatları
+- **Domain**: `google.com`
+- **IP Adresi**: `8.8.8.8`
+- **Tam URL**: `https://google.com` veya `http://google.com`
+- **www ile**: `www.google.com`
+
 ### Örnek İstek
 ```bash
+# Domain ile
 curl 'https://guvenliktarama.com/api.php?target=google.com&checks[]=dns&checks[]=ssl&o=json'
+
+# Tam URL ile
+curl 'https://guvenliktarama.com/api.php?target=https://google.com&checks[]=dns&checks[]=ssl&o=json'
+
+# IP adresi ile
+curl 'https://guvenliktarama.com/api.php?target=8.8.8.8&port=53&checks[]=dns&checks[]=ports&o=json'
 ```
 
 ### Desteklenen Kontroller

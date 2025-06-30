@@ -184,6 +184,9 @@ class SecurityConfig {
     
     // Target validasyonu
     private static function isValidTarget($target) {
+        // URL'den domain kısmını çıkar
+        $target = self::extractDomainFromUrl($target);
+        
         // Tehlikeli karakterler
         $dangerousChars = ['<', '>', '"', "'", '&', ';', '|', '`', '$', '(', ')', '{', '}', '[', ']'];
         foreach ($dangerousChars as $char) {
@@ -206,6 +209,28 @@ class SecurityConfig {
         }
         
         return false;
+    }
+
+    // URL'den domain çıkarma fonksiyonu
+    private static function extractDomainFromUrl($url) {
+        // URL'den domain kısmını çıkar
+        $url = trim($url);
+        
+        // Eğer http:// veya https:// ile başlıyorsa
+        if (preg_match('/^https?:\/\//', $url)) {
+            $parsedUrl = parse_url($url);
+            if (isset($parsedUrl['host'])) {
+                return $parsedUrl['host'];
+            }
+        }
+        
+        // Eğer www. ile başlıyorsa
+        if (strpos($url, 'www.') === 0) {
+            return substr($url, 4);
+        }
+        
+        // Eğer sadece domain ise
+        return $url;
     }
 }
 
