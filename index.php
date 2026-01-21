@@ -1,64 +1,70 @@
+<?php require_once 'bootstrap.php'; ?>
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Primary Meta Tags -->
     <title>Güvenlik Kontrol Aracı - Domain ve IP Güvenlik Analizi | guvenliktarama.com</title>
     <meta name="title" content="Güvenlik Kontrol Aracı - Domain ve IP Güvenlik Analizi | guvenliktarama.com">
-    <meta name="description" content="Ücretsiz domain ve IP adresi güvenlik kontrol aracı. DNS, SSL/TLS, HTTP headers, port tarama, e-posta güvenliği ve kara liste kontrollerini gerçekleştirin. Güvenlik zaafiyetlerini tespit edin.">
-    <meta name="keywords" content="güvenlik kontrol, domain güvenliği, IP güvenliği, SSL kontrol, DNS güvenliği, port tarama, güvenlik analizi, web güvenliği, siber güvenlik, güvenlik testi">
+    <meta name="description"
+        content="Ücretsiz domain ve IP adresi güvenlik kontrol aracı. DNS, SSL/TLS, HTTP headers, port tarama, e-posta güvenliği ve kara liste kontrollerini gerçekleştirin. Güvenlik zaafiyetlerini tespit edin.">
+    <meta name="keywords"
+        content="güvenlik kontrol, domain güvenliği, IP güvenliği, SSL kontrol, DNS güvenliği, port tarama, güvenlik analizi, web güvenliği, siber güvenlik, güvenlik testi">
     <meta name="author" content="Güvenlik Tarama">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="language" content="Turkish">
     <meta name="revisit-after" content="7 days">
     <meta name="distribution" content="global">
     <meta name="rating" content="general">
-    
+
     <!-- Canonical URL -->
     <link rel="canonical" href="https://www.guvenliktarama.com/">
-    
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://www.guvenliktarama.com/">
     <meta property="og:title" content="Güvenlik Tarama - Domain ve IP Güvenlik Analizi">
-    <meta property="og:description" content="Ücretsiz domain ve IP adresi güvenlik kontrol aracı. DNS, SSL/TLS, HTTP headers, port tarama ve güvenlik kontrollerini gerçekleştirin.">
+    <meta property="og:description"
+        content="Ücretsiz domain ve IP adresi güvenlik kontrol aracı. DNS, SSL/TLS, HTTP headers, port tarama ve güvenlik kontrollerini gerçekleştirin.">
     <meta property="og:image" content="https://www.guvenliktarama.com/images/security-checker-og.jpg">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="Güvenlik Tarama - Güvenlik Analizi">
     <meta property="og:site_name" content="Güvenlik Tarama">
     <meta property="og:locale" content="tr_TR">
-    
+
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://www.guvenliktarama.com/">
     <meta property="twitter:title" content="Güvenlik Tarama - Domain ve IP Güvenlik Analizi">
-    <meta property="twitter:description" content="Ücretsiz domain ve IP adresi güvenlik kontrol aracı. Güvenlik zaafiyetlerini tespit edin.">
+    <meta property="twitter:description"
+        content="Ücretsiz domain ve IP adresi güvenlik kontrol aracı. Güvenlik zaafiyetlerini tespit edin.">
     <meta property="twitter:image" content="https://www.guvenliktarama.com/images/security-checker-twitter.jpg">
     <meta property="twitter:image:alt" content="Güvenlik Tarama">
-    
+
     <!-- Additional SEO Meta Tags -->
     <meta name="theme-color" content="#667eea">
     <meta name="msapplication-TileColor" content="#667eea">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Güvenlik Kontrol">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
-    
+
     <!-- Preconnect for Performance -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://unpkg.com">
     <link rel="dns-prefetch" href="https://cdn.tailwindcss.com">
     <link rel="dns-prefetch" href="https://unpkg.com">
-    
+
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
@@ -104,7 +110,7 @@
         "softwareVersion": "1.0.0"
     }
     </script>
-    
+
     <!-- Additional Structured Data for Organization -->
     <script type="application/ld+json">
     {
@@ -124,253 +130,340 @@
         ]
     }
     </script>
-    
-    <!-- CSS and JavaScript -->
-    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
-    <link rel="stylesheet" href="dist/output.css">
-    <script src="https://unpkg.com/feather-icons"></script>
-    
-    <!-- Custom Styles -->
-    <style>
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind Config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                            950: '#1e1b4b',
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                }
+            }
         }
-        .card-hover {
-            transition: all 0.3s ease;
+    </script>
+
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply bg-slate-50 text-slate-900 font-sans antialiased;
+            }
+            h1, h2, h3, h4 {
+                @apply font-display;
+            }
         }
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        @layer components {
+            .glass-card {
+                @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+            }
+            .glass-header {
+                @apply sticky top-0 z-50 bg-white/70 backdrop-blur-lg border-b border-slate-200;
+            }
+            .btn-primary {
+                @apply bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-brand-500/20 active:scale-[0.98];
+            }
+            .input-field {
+                @apply w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all outline-none;
+            }
+            .nav-link {
+                @apply px-4 py-2 text-slate-600 hover:text-brand-600 font-medium transition-colors;
+            }
         }
-        .loading {
-            animation: spin 1s linear infinite;
+        .loading-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
         }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        /* SEO-friendly focus styles */
-        .focus-visible:focus {
-            outline: 2px solid #667eea;
-            outline-offset: 2px;
-        }
-        
-        /* Print styles for better accessibility */
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; }
-            .gradient-bg { background: #667eea !important; }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
         }
     </style>
+    <script src="https://unpkg.com/feather-icons"></script>
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-6JMFXNNE2Q"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-6JMFXNNE2Q');
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-6JMFXNNE2Q');
     </script>
 </head>
-<body class="bg-gray-50 min-h-screen">
+
+<body class="bg-slate-50 min-h-screen font-sans selection:bg-brand-100 selection:text-brand-900">
     <!-- Header -->
-    <header class="gradient-bg text-white shadow-lg" role="banner" aria-label="Site başlığı">
-        <div class="container mx-auto px-6 py-8">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center" aria-hidden="true">
-                        <i data-feather="shield" class="w-6 h-6"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-2xl font-bold">Güvenlik Tarama</h1>
-                        <p class="text-blue-100">Domain ve IP güvenlik analizi</p>
-                    </div>
+    <header class="glass-header" role="banner" aria-label="Site başlığı">
+        <div class="container mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3 group cursor-pointer" onclick="window.location.href='/'">
+                <div class="w-10 h-10 bg-brand-600 text-white rounded-xl flex items-center justify-center shadow-lg shadow-brand-500/30 group-hover:bg-brand-700 transition-all duration-300"
+                    aria-hidden="true">
+                    <i data-feather="shield" class="w-6 h-6"></i>
                 </div>
-                <nav class="hidden md:flex items-center space-x-4" role="navigation" aria-label="Ana navigasyon">
-                    <span class="text-blue-100">⚡ Hızlı Sonuç</span>
-                    <a href="#api" 
-                       onclick="showApiInfo()" 
-                       class="px-4 py-2 border border-white border-opacity-30 rounded-lg text-white hover:bg-white hover:bg-opacity-20 transition-all duration-200 flex items-center space-x-2 cursor-pointer"
-                       aria-label="API dokümantasyonunu göster">
-                        <i data-feather="code" class="w-4 h-4" aria-hidden="true"></i>
-                        <span>API</span>
-                    </a>
-                </nav>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-950">Güvenlik<span
+                            class="text-brand-600">Tarama</span></h1>
+                    <p class="text-[10px] uppercase tracking-widest font-bold text-slate-400 -mt-1">Enterprise Guard</p>
+                </div>
             </div>
+
+            <nav class="flex items-center space-x-2" role="navigation" aria-label="Ana navigasyon">
+                <a href="#api" onclick="showApiInfo()" class="nav-link flex items-center space-x-2"
+                    aria-label="API dokümantasyonunu göster">
+                    <i data-feather="code" class="w-4 h-4" aria-hidden="true"></i>
+                    <span>API</span>
+                </a>
+            </nav>
         </div>
     </header>
 
-    <!-- Breadcrumb Navigation -->
-    <nav class="bg-gray-100 py-2" aria-label="Breadcrumb">
-        <div class="container mx-auto px-6">
-            <ol class="flex items-center space-x-2 text-sm text-gray-600">
-                <li>
-                    <a href="/" class="hover:text-blue-600 transition-colors" aria-label="Ana sayfa">Ana Sayfa</a>
-                </li>
-                <li aria-hidden="true">
-                    <i data-feather="chevron-right" class="w-4 h-4"></i>
-                </li>
-                <li class="text-gray-800 font-medium" aria-current="page">Güvenlik Kontrol Aracı</li>
-            </ol>
-        </div>
-    </nav>
-
     <!-- Main Content -->
-    <main class="container mx-auto px-6 py-8" role="main">
+    <main class="container mx-auto px-6 py-12" role="main">
+        <!-- Hero Section -->
+        <section class="max-w-4xl mx-auto text-center mb-16 px-4">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">
+                Altyapınızı <span class="text-brand-600">Saniyeler İçinde</span> Denetleyin
+            </h2>
+            <p class="text-lg text-slate-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+                Domain ve IP adreslerinizi DNS, SSL, Headers ve Port bazında analiz ederek
+                güvenlik açıklarını profesyonel standartlarda raporlayın.
+            </p>
+            <div class="flex flex-wrap justify-center gap-3 text-sm font-medium">
+                <span
+                    class="px-3 py-1 bg-brand-50 text-brand-700 rounded-full border border-brand-100 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-brand-500 rounded-full animate-pulse"></span> DNS Analizi
+                </span>
+                <span
+                    class="px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> SSL/TLS
+                </span>
+                <span
+                    class="px-3 py-1 bg-blue-50 text-blue-700 rounded-full border border-blue-100 flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span> Port Scan
+                </span>
+            </div>
+        </section>
         <!-- Page Description for SEO -->
         <section class="max-w-4xl mx-auto mb-8">
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
                 <h2 class="text-xl font-semibold text-blue-800 mb-3">Güvenlik Kontrol Aracı Hakkında</h2>
                 <p class="text-blue-700 mb-3">
-                    Bu ücretsiz güvenlik kontrol aracı ile domain ve IP adreslerinizin güvenlik durumunu analiz edebilirsiniz. 
-                    DNS güvenliği, SSL/TLS sertifikaları, HTTP güvenlik başlıkları, port tarama ve daha fazlasını kontrol edin.
+                    Bu ücretsiz güvenlik kontrol aracı ile domain ve IP adreslerinizin güvenlik durumunu analiz
+                    edebilirsiniz.
+                    DNS güvenliği, SSL/TLS sertifikaları, HTTP güvenlik başlıkları, port tarama ve daha fazlasını
+                    kontrol edin.
                 </p>
                 <p class="text-blue-600 text-sm">
-                    <strong>Desteklenen Kontroller:</strong> DNS Güvenliği, SSL/TLS Analizi, HTTP Headers, Port Tarama, E-posta Güvenliği, Kara Liste Kontrolü
+                    <strong>Desteklenen Kontroller:</strong> DNS Güvenliği, SSL/TLS Analizi, HTTP Headers, Port Tarama,
+                    E-posta Güvenliği, Kara Liste Kontrolü
                 </p>
             </div>
         </section>
 
-        <!-- Input Form -->
+        <!-- Input Form Section -->
         <section class="max-w-4xl mx-auto" aria-labelledby="form-heading">
-            <div class="bg-white rounded-xl shadow-lg p-8 mb-8 card-hover">
-                <h2 id="form-heading" class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
-                    <i data-feather="search" class="w-6 h-6 mr-3 text-blue-600" aria-hidden="true"></i>
-                    Güvenlik Analizi Başlat
+            <div class="glass-card rounded-2xl p-6 md:p-10 mb-12 relative overflow-hidden group">
+                <div
+                    class="absolute top-0 right-0 -tr-y-1/2 tr-x-1/2 w-64 h-64 bg-brand-500/5 rounded-full blur-3xl pointer-events-none transition-all group-hover:bg-brand-500/10">
+                </div>
+
+                <h2 id="form-heading" class="text-2xl font-bold text-slate-900 mb-8 flex items-center">
+                    <div class="w-10 h-10 bg-brand-100 text-brand-600 rounded-lg flex items-center justify-center mr-4">
+                        <i data-feather="zap" class="w-5 h-5"></i>
+                    </div>
+                    Yeni Analiz Başlat
                 </h2>
-                
+
                 <form id="securityForm" class="space-y-6" role="form" aria-label="Güvenlik analizi formu">
                     <fieldset>
                         <legend class="sr-only">Analiz parametreleri</legend>
-                        
+
                         <div>
-                            <label for="target" class="block text-sm font-medium text-gray-700 mb-2">
-                                Hedef Domain veya IP Adresi <span class="text-red-500" aria-label="zorunlu alan">*</span>
-                            </label>
-                            <div class="flex space-x-4">
-                                <input type="text" 
-                                       id="target" 
-                                       name="target" 
-                                       placeholder="örn: example.com, https://example.com veya 192.168.1.1" 
-                                       class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                       required
-                                       aria-describedby="target-help"
-                                       aria-required="true">
-                                <input type="text" 
-                                       id="port" 
-                                       name="port" 
-                                       placeholder="Port (opsiyonel)" 
-                                       class="w-32 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                                       aria-describedby="port-help">
+                            <div class="space-y-4">
+                                <label for="target" class="block text-sm font-semibold text-slate-700 tracking-tight">
+                                    Hedef Domain veya IP Adresi <span class="text-brand-600"
+                                        aria-label="zorunlu alan">*</span>
+                                </label>
+                                <div class="flex flex-col md:flex-row gap-3">
+                                    <div class="relative flex-1 group">
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-500 transition-colors">
+                                            <i data-feather="globe" class="w-5 h-5"></i>
+                                        </div>
+                                        <input type="text" id="target" name="target"
+                                            placeholder="örn: google.com veya 8.8.8.8" class="input-field pl-12"
+                                            required aria-describedby="target-help" aria-required="true">
+                                    </div>
+                                    <div class="relative w-full md:w-36 group">
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-brand-500 transition-colors">
+                                            <i data-feather="hash" class="w-4 h-4"></i>
+                                        </div>
+                                        <input type="text" id="port" name="port" placeholder="Port"
+                                            class="input-field pl-10" aria-describedby="port-help">
+                                    </div>
+                                </div>
+                                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                                    <p id="target-help" class="text-xs text-slate-500 italic">
+                                        * URL'lerden domain kısmı otomatik olarak ayrıştırılır.
+                                    </p>
+                                </div>
                             </div>
-                            <p id="target-help" class="text-sm text-gray-500 mt-2">
-                                Domain adı, tam URL (https://example.com) veya IP adresi girebilirsiniz. URL'lerden domain kısmı otomatik olarak çıkarılır.
-                            </p>
-                            <p id="port-help" class="text-sm text-gray-500 mt-1">
-                                Port numarası 1-65535 arasında olmalıdır.
-                            </p>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" name="checks[]" value="dns" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-                                <span class="text-sm font-medium text-gray-700">DNS Güvenliği</span>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <label
+                                class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all select-none group has-[:checked]:border-brand-500/50 has-[:checked]:bg-brand-50/50">
+                                <input type="checkbox" name="checks[]" value="dns" checked
+                                    class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500">
+                                <span
+                                    class="text-sm font-semibold text-slate-700 ml-3 group-has-[:checked]:text-brand-700">DNS
+                                    Güvenliği</span>
                             </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" name="checks[]" value="ssl" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-                                <span class="text-sm font-medium text-gray-700">SSL/TLS</span>
+                            <label
+                                class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all select-none group has-[:checked]:border-brand-500/50 has-[:checked]:bg-brand-50/50">
+                                <input type="checkbox" name="checks[]" value="ssl" checked
+                                    class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500">
+                                <span
+                                    class="text-sm font-semibold text-slate-700 ml-3 group-has-[:checked]:text-brand-700">SSL/TLS
+                                    Analizi</span>
                             </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" name="checks[]" value="headers" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-                                <span class="text-sm font-medium text-gray-700">HTTP Headers</span>
+                            <label
+                                class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all select-none group has-[:checked]:border-brand-500/50 has-[:checked]:bg-brand-50/50">
+                                <input type="checkbox" name="checks[]" value="headers" checked
+                                    class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500">
+                                <span
+                                    class="text-sm font-semibold text-slate-700 ml-3 group-has-[:checked]:text-brand-700">HTTP
+                                    Headers</span>
                             </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" name="checks[]" value="ports" checked class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-                                <span class="text-sm font-medium text-gray-700">Port Tarama</span>
+                            <label
+                                class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all select-none group has-[:checked]:border-brand-500/50 has-[:checked]:bg-brand-50/50">
+                                <input type="checkbox" name="checks[]" value="ports" checked
+                                    class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500">
+                                <span
+                                    class="text-sm font-semibold text-slate-700 ml-3 group-has-[:checked]:text-brand-700">Port
+                                    Tarama</span>
                             </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" name="checks[]" value="email" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-                                <span class="text-sm font-medium text-gray-700">📧 E-posta Güvenliği</span>
+                            <label
+                                class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all select-none group has-[:checked]:border-brand-500/50 has-[:checked]:bg-brand-50/50">
+                                <input type="checkbox" name="checks[]" value="email"
+                                    class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500">
+                                <span
+                                    class="text-sm font-semibold text-slate-700 ml-3 group-has-[:checked]:text-brand-700">E-posta
+                                    Güvenliği</span>
                             </label>
-                            <label class="flex items-center space-x-3 cursor-pointer">
-                                <input type="checkbox" name="checks[]" value="blacklist" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500">
-                                <span class="text-sm font-medium text-gray-700">Kara Liste</span>
+                            <label
+                                class="flex items-center p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-all select-none group has-[:checked]:border-brand-500/50 has-[:checked]:bg-brand-50/50">
+                                <input type="checkbox" name="checks[]" value="blacklist"
+                                    class="w-4 h-4 text-brand-600 border-slate-300 rounded focus:ring-brand-500">
+                                <span
+                                    class="text-sm font-semibold text-slate-700 ml-3 group-has-[:checked]:text-brand-700">Kara
+                                    Liste</span>
                             </label>
                         </div>
                     </fieldset>
 
-                    <button type="submit" 
-                            class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2"
+                    <div class="pt-4">
+                        <button type="submit" class="btn-primary w-full flex items-center justify-center space-x-3"
                             aria-describedby="submit-help">
-                        <i data-feather="play" class="w-5 h-5" aria-hidden="true"></i>
-                        <span>Güvenlik Analizi Başlat</span>
-                    </button>
-                    <p id="submit-help" class="text-sm text-gray-500 text-center">
-                        Analiz başlatmak için yukarıdaki butona tıklayın. Sonuçlar birkaç saniye içinde görüntülenecektir.
-                    </p>
+                            <i data-feather="play" class="w-5 h-5" aria-hidden="true"></i>
+                            <span>Taramayı Başlat</span>
+                        </button>
+                        <p id="submit-help"
+                            class="text-xs text-slate-500 text-center mt-4 flex items-center justify-center space-x-2">
+                            <i data-feather="info" class="w-3 h-3"></i>
+                            <span>Sistem kaynakları limitli şekilde kullanılmaktadır.</span>
+                        </p>
+                    </div>
                 </form>
             </div>
 
             <!-- Loading State -->
-            <div id="loading" class="hidden bg-white rounded-xl shadow-lg p-8 mb-8" role="status" aria-live="polite">
-                <div class="flex items-center justify-center space-x-4">
-                    <div class="loading" aria-hidden="true">
-                        <i data-feather="loader" class="w-8 h-8 text-blue-600"></i>
+            <div id="loading"
+                class="hidden glass-card rounded-2xl p-10 mb-12 shadow-brand-500/5 overflow-hidden relative"
+                role="status" aria-live="polite">
+                <div class="absolute inset-0 loading-shimmer opacity-30"></div>
+                <div class="flex flex-col items-center justify-center text-center relative z-10 px-4">
+                    <div class="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center mb-6 animate-bounce">
+                        <i data-feather="loader" class="w-8 h-8 text-brand-600"></i>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-800">Analiz yapılıyor...</h3>
-                        <p class="text-gray-600">Lütfen bekleyin, güvenlik kontrolleri gerçekleştiriliyor.</p>
-                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">Güvenlik Kontrolleri Sürüyor</h3>
+                    <p class="text-slate-600 max-w-sm">Seçtiğiniz parametrelere göre altyapınız derinlemesine analiz
+                        ediliyor. Lütfen sayfayı kapatmayın.</p>
                 </div>
             </div>
 
             <!-- Results -->
-            <section id="results" class="hidden space-y-6" aria-labelledby="results-heading">
-                <h2 id="results-heading" class="sr-only">Analiz Sonuçları</h2>
-                
-                <!-- Summary Card -->
-                <div class="bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center">
-                            <i data-feather="bar-chart-2" class="w-6 h-6 mr-3 text-blue-600" aria-hidden="true"></i>
+            <section id="results" class="hidden space-y-8" aria-labelledby="results-heading">
+                <!-- Analysis Summary -->
+                <div class="glass-card rounded-2xl overflow-hidden shadow-brand-500/5 transition-all duration-500">
+                    <div class="px-6 py-5 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-slate-900 flex items-center">
+                            <i data-feather="terminal" class="w-5 h-5 mr-3 text-brand-600"></i>
                             Analiz Özeti
                         </h3>
-                        <button onclick="toggleRawJson()" 
-                                class="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors duration-200"
-                                aria-label="RAW JSON çıktısını göster veya gizle">
-                            <i data-feather="code" class="w-4 h-4" aria-hidden="true"></i>
-                            <span id="rawJsonButtonText">RAW JSON Göster</span>
-                        </button>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="toggleRawJson()"
+                                class="flex items-center space-x-2 px-3 py-1.5 bg-white border border-slate-200 hover:border-brand-500/50 hover:bg-brand-50 text-slate-600 hover:text-brand-600 rounded-lg transition-all text-xs font-semibold">
+                                <i data-feather="code" class="w-3.5 h-3.5"></i>
+                                <span id="rawJsonButtonText">RAW JSON</span>
+                            </button>
+                        </div>
                     </div>
-                    <div id="summary" class="grid grid-cols-1 md:grid-cols-4 gap-4" role="region" aria-label="Analiz özeti">
-                        <!-- Summary will be populated by JavaScript -->
+                    <div class="p-6 md:p-8">
+                        <div id="summary" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="region"
+                            aria-label="Analiz özeti">
+                            <!-- Populated by JS -->
+                        </div>
                     </div>
                 </div>
 
                 <!-- Raw JSON Output -->
-                <div id="rawJsonOutput" class="hidden bg-white rounded-xl shadow-lg p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold text-gray-800 flex items-center">
-                            <i data-feather="file-text" class="w-6 h-6 mr-3 text-green-600" aria-hidden="true"></i>
-                            RAW JSON Çıktısı
+                <div id="rawJsonOutput" class="hidden glass-card rounded-2xl overflow-hidden border-brand-500/30">
+                    <div class="px-6 py-4 border-b border-slate-200 bg-slate-900 flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-slate-100 flex items-center">
+                            <i data-feather="file-text" class="w-4 h-4 mr-3 text-brand-400"></i>
+                            Developer Response
                         </h3>
-                        <button onclick="copyRawJson()" 
-                                class="flex items-center space-x-2 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg transition-colors duration-200"
-                                title="JSON'i Kopyala"
-                                aria-label="JSON çıktısını panoya kopyala">
-                            <i data-feather="copy" class="w-4 h-4" aria-hidden="true"></i>
-                            <span>Kopyala</span>
+                        <button onclick="copyRawJson()" class="text-slate-400 hover:text-white transition-colors">
+                            <i data-feather="copy" class="w-4 h-4"></i>
                         </button>
                     </div>
-                    <div class="bg-gray-900 rounded-lg p-4">
-                        <pre id="rawJsonContent" class="text-green-400 text-sm overflow-x-auto whitespace-pre-wrap" role="textbox" aria-label="JSON çıktısı"></pre>
+                    <div class="bg-slate-950 p-6">
+                        <pre id="rawJsonContent"
+                            class="text-brand-300 text-xs font-mono overflow-x-auto whitespace-pre-wrap"></pre>
                     </div>
                 </div>
 
                 <!-- Detailed Results -->
-                <div id="detailedResults" class="space-y-4" role="region" aria-label="Detaylı analiz sonuçları">
-                    <!-- Results will be populated by JavaScript -->
+                <div id="detailedResults" class="grid grid-cols-1 gap-6" role="region"
+                    aria-label="Detaylı analiz sonuçları">
+                    <!-- Populated by JS -->
                 </div>
             </section>
         </section>
@@ -390,7 +483,7 @@
                     </button>
                 </div>
             </div>
-            
+
             <div class="p-6 space-y-6">
                 <!-- API Endpoint -->
                 <div>
@@ -409,7 +502,8 @@
                             <div>
                                 <p class="font-medium text-yellow-800">İstek Sınırı</p>
                                 <p class="text-yellow-700 text-sm mt-1">
-                                    Dakikada maksimum <strong>20 istek</strong> gönderilebilir. API kullanımında bu sınırı göz önünde bulundurun.
+                                    Dakikada maksimum <strong>20 istek</strong> gönderilebilir. API kullanımında bu
+                                    sınırı göz önünde bulundurun.
                                 </p>
                             </div>
                         </div>
@@ -432,11 +526,13 @@
                             </div>
                             <div>
                                 <span class="font-medium text-gray-700">checks[]</span>
-                                <span class="text-gray-600">- Kontrol türleri (opsiyonel, varsayılan: dns, ssl, headers, ports)</span>
+                                <span class="text-gray-600">- Kontrol türleri (opsiyonel, varsayılan: dns, ssl, headers,
+                                    ports)</span>
                             </div>
                             <div>
                                 <span class="font-medium text-gray-700">o</span>
-                                <span class="text-gray-600">- Çıktı formatı: <b>json</b> veya <b>text</b> (varsayılan: json)</span>
+                                <span class="text-gray-600">- Çıktı formatı: <b>json</b> veya <b>text</b> (varsayılan:
+                                    json)</span>
                             </div>
                         </div>
                     </div>
@@ -448,37 +544,37 @@
                     <div class="bg-gray-900 rounded-lg p-4 mb-4">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-green-400 text-sm">cURL (JSON)</span>
-                            <button onclick="copyToClipboard(this)" 
-                                    class="text-gray-400 hover:text-gray-200 transition-colors"
-                                    title="Kopyala">
+                            <button onclick="copyToClipboard(this)"
+                                class="text-gray-400 hover:text-gray-200 transition-colors" title="Kopyala">
                                 <i data-feather="copy" class="w-4 h-4"></i>
                             </button>
                         </div>
-                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="curl 'https://www.guvenliktarama.com/api.php?target=google.com&o=json'">
+                        <pre class="text-green-400 text-sm overflow-x-auto"
+                            data-content="curl 'https://www.guvenliktarama.com/api.php?target=google.com&o=json'">
 curl 'https://www.guvenliktarama.com/api.php?target=google.com&o=json'</pre>
                     </div>
                     <div class="bg-gray-900 rounded-lg p-4 mb-4">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-green-400 text-sm">cURL (TEXT)</span>
-                            <button onclick="copyToClipboard(this)" 
-                                    class="text-gray-400 hover:text-gray-200 transition-colors"
-                                    title="Kopyala">
+                            <button onclick="copyToClipboard(this)"
+                                class="text-gray-400 hover:text-gray-200 transition-colors" title="Kopyala">
                                 <i data-feather="copy" class="w-4 h-4"></i>
                             </button>
                         </div>
-                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="curl 'https://www.guvenliktarama.com/api.php?target=google.com&o=text'">
+                        <pre class="text-green-400 text-sm overflow-x-auto"
+                            data-content="curl 'https://www.guvenliktarama.com/api.php?target=google.com&o=text'">
 curl 'https://www.guvenliktarama.com/api.php?target=google.com&o=text'</pre>
                     </div>
                     <div class="bg-gray-900 rounded-lg p-4 mb-4">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-green-400 text-sm">Doğrudan URL (Tarayıcıda)</span>
-                            <button onclick="copyToClipboard(this)" 
-                                    class="text-gray-400 hover:text-gray-200 transition-colors"
-                                    title="Kopyala">
+                            <button onclick="copyToClipboard(this)"
+                                class="text-gray-400 hover:text-gray-200 transition-colors" title="Kopyala">
                                 <i data-feather="copy" class="w-4 h-4"></i>
                             </button>
                         </div>
-                        <pre class="text-green-400 text-sm overflow-x-auto" data-content="https://www.guvenliktarama.com/api.php?target=google.com&o=json">
+                        <pre class="text-green-400 text-sm overflow-x-auto"
+                            data-content="https://www.guvenliktarama.com/api.php?target=google.com&o=json">
 https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
                     </div>
                 </div>
@@ -520,9 +616,8 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
                     <div class="bg-gray-900 rounded-lg p-4">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-blue-400 text-sm">JSON Response (Web Arayüzü)</span>
-                            <button onclick="copyToClipboard(this)" 
-                                    class="text-gray-400 hover:text-gray-200 transition-colors"
-                                    title="Kopyala">
+                            <button onclick="copyToClipboard(this)"
+                                class="text-gray-400 hover:text-gray-200 transition-colors" title="Kopyala">
                                 <i data-feather="copy" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -558,13 +653,12 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
   ]
 }</pre>
                     </div>
-                    
+
                     <div class="mt-4 bg-gray-900 rounded-lg p-4">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-green-400 text-sm">JSON Response (API Endpoint)</span>
-                            <button onclick="copyToClipboard(this)" 
-                                    class="text-gray-400 hover:text-gray-200 transition-colors"
-                                    title="Kopyala">
+                            <button onclick="copyToClipboard(this)"
+                                class="text-gray-400 hover:text-gray-200 transition-colors" title="Kopyala">
                                 <i data-feather="copy" class="w-4 h-4"></i>
                             </button>
                         </div>
@@ -647,95 +741,55 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-12 mt-16" role="contentinfo">
+    <footer class="bg-slate-950 text-slate-400 py-16 mt-16 border-t border-slate-900" role="contentinfo">
         <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 group">
                 <!-- Company Info -->
                 <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center space-x-3 mb-4">
-                        <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center" aria-hidden="true">
-                            <i data-feather="shield" class="w-6 h-6"></i>
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-10 h-10 bg-brand-600/20 text-brand-500 rounded-xl flex items-center justify-center border border-brand-500/30"
+                            aria-hidden="true">
+                            <i data-feather="shield" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <h3 class="text-xl font-bold">Güvenlik Tarama</h3>
-                            <p class="text-gray-400 text-sm">Güvenlik Kontrol Araçları</p>
+                            <h3 class="text-xl font-bold text-white tracking-tight">Güvenlik<span
+                                    class="text-brand-500">Tarama</span></h3>
+                            <p class="text-[10px] uppercase tracking-widest font-bold text-slate-500">Secured
+                                Infrastructure</p>
                         </div>
                     </div>
-                    <p class="text-gray-400 mb-4">
-                        Ücretsiz güvenlik kontrol araçları ile domain ve IP adreslerinizin güvenlik durumunu analiz edin. 
-                        DNS, SSL/TLS, HTTP headers ve daha fazla güvenlik kontrolü.
+                    <p class="text-sm leading-relaxed max-w-sm mb-6">
+                        Yapay zeka asistanı Antigravity tarafından stabilize edilmiş,
+                        kurumsal düzeyde güvenlik tarama çözümleri. Altyapınızı bugün denetleyin.
                     </p>
                     <div class="flex space-x-4">
-                        <a href="mailto:info@guvenliktarama.com" 
-                           class="text-gray-400 hover:text-white transition-colors duration-200"
-                           aria-label="E-posta gönder">
-                            <i data-feather="mail" class="w-5 h-5"></i>
+                        <a href="mailto:info@guvenliktarama.com"
+                            class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center hover:bg-brand-600 hover:text-white transition-all text-slate-500"
+                            aria-label="E-posta gönder">
+                            <i data-feather="mail" class="w-4 h-4"></i>
                         </a>
                     </div>
                 </div>
 
-                <!-- Quick Links -->
+                <!-- Product -->
                 <div>
-                    <h4 class="text-lg font-semibold mb-4">Hızlı Linkler</h4>
-                    <ul class="space-y-2">
-                        <li>
-                            <a href="/" class="text-gray-400 hover:text-white transition-colors duration-200">
-                                Ana Sayfa
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#api" onclick="showApiInfo()" class="text-gray-400 hover:text-white transition-colors duration-200">
-                                API Dokümantasyonu
-                            </a>
-                        </li>
-                        <li>
-                            <a href="privacy.php" class="text-gray-400 hover:text-white transition-colors duration-200">
-                                Gizlilik Politikası
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/sitemap.xml" class="text-gray-400 hover:text-white transition-colors duration-200">
-                                Site Haritası
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Features -->
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Özellikler</h4>
-                    <ul class="space-y-2 text-sm text-gray-400">
-                        <li>✓ DNS Güvenlik Kontrolü</li>
-                        <li>✓ SSL/TLS Analizi</li>
-                        <li>✓ HTTP Headers</li>
-                        <li>✓ Port Tarama</li>
-                        <li>✓ E-posta Güvenliği</li>
-                        <li>✓ Kara Liste Kontrolü</li>
+                    <h4 class="text-sm font-bold text-white uppercase tracking-widest mb-6">Araçlar</h4>
+                    <ul class="space-y-4 text-sm">
+                        <li><a href="/" class="hover:text-brand-400 transition-colors">OSINT Scanner</a></li>
+                        <li><a href="#api" onclick="showApiInfo()"
+                                class="hover:text-brand-400 transition-colors">Developer API</a></li>
+                        <li><a href="privacy.php" class="hover:text-brand-400 transition-colors">Privacy Policy</a></li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Bottom Footer -->
-            <div class="border-t border-gray-700 mt-8 pt-8">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="text-center md:text-left mb-4 md:mb-0">
-                        <p class="text-gray-400 text-sm">
-                            🔒 Güvenlik Kontrol Aracı - Ticari kullanım için değildir. Sonuçlar kesin olmayabilir.
-                        </p>
-                    </div>
-                    <div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6 text-sm">
-                        <a href="privacy.php" class="text-gray-400 hover:text-white transition-colors duration-200">
-                            📄 Veri Gizliliği
-                        </a>
-                        <span class="hidden md:inline text-gray-600">|</span>
-                        <a href="mailto:privacy@guvenliktarama.com" class="text-gray-400 hover:text-white transition-colors duration-200">
-                            📧 İletişim
-                        </a>
-                        <span class="hidden md:inline text-gray-600">|</span>
-                        <span class="text-gray-400">
-                            © 2025 Güvenlik Tarama
-                        </span>
-                    </div>
+            <div
+                class="border-t border-slate-900 mt-16 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-xs">© 2026 Güvenlik Tarama. Tüm hakları saklıdır.</p>
+                <div class="flex items-center gap-6 text-xs font-medium">
+                    <a href="privacy.php" class="hover:text-white transition-colors">Veri Gizliliği</a>
+                    <a href="mailto:privacy@guvenliktarama.com" class="hover:text-white transition-colors">Destek
+                        Hattı</a>
                 </div>
             </div>
         </div>
@@ -749,9 +803,9 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
         let currentRawData = null;
 
         // Form submission with better accessibility
-        document.getElementById('securityForm').addEventListener('submit', async function(e) {
+        document.getElementById('securityForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const formData = new FormData(this);
             const target = formData.get('target');
             const port = formData.get('port');
@@ -762,7 +816,7 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
                 const targetInput = document.getElementById('target');
                 targetInput.setAttribute('aria-invalid', 'true');
                 targetInput.focus();
-                
+
                 // Show error message
                 showNotification('Lütfen bir hedef girin!', 'error');
                 return;
@@ -775,11 +829,11 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
             const loadingElement = document.getElementById('loading');
             const resultsElement = document.getElementById('results');
             const rawJsonElement = document.getElementById('rawJsonOutput');
-            
+
             loadingElement.classList.remove('hidden');
             resultsElement.classList.add('hidden');
             rawJsonElement.classList.add('hidden');
-            
+
             // Announce loading to screen readers
             announceToScreenReader('Güvenlik analizi başlatılıyor, lütfen bekleyin.');
 
@@ -789,30 +843,32 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
                 params.append('target', target);
                 if (port) params.append('port', port);
                 checks.forEach(check => params.append('checks[]', check));
-                
-                const response = await fetch(`security_check.php?${params.toString()}`, {
+
+                const response = await fetch(`api.php?${params.toString()}`, {
                     method: 'GET'
                 });
 
                 if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
                 }
 
                 const result = await response.json();
-                
+                const data = result.data; // api.php wraps response in 'data'
+
                 // Hide loading
                 loadingElement.classList.add('hidden');
-                
+
                 // Store raw data
-                currentRawData = result;
-                
+                currentRawData = data;
+
                 // Show results
-                displayResults(result);
+                displayResults(data);
                 resultsElement.classList.remove('hidden');
-                
+
                 // Announce results to screen readers
-                announceToScreenReader(`Analiz tamamlandı. ${result.summary.passed} başarılı, ${result.summary.warnings} uyarı, ${result.summary.failed} başarısız test.`);
-                
+                announceToScreenReader(`Analiz tamamlandı. ${data.summary.passed} başarılı, ${data.summary.warnings} uyarı, ${data.summary.failed} başarısız test.`);
+
             } catch (error) {
                 console.error('Hata:', error);
                 showNotification('Analiz sırasında bir hata oluştu!', 'error');
@@ -825,21 +881,21 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
             // Display summary with better accessibility
             const summary = document.getElementById('summary');
             summary.innerHTML = `
-                <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center" role="region" aria-label="Başarılı testler">
-                    <div class="text-2xl font-bold text-green-600">${data.summary.passed}</div>
-                    <div class="text-sm text-green-700">Başarılı Test</div>
+                <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-5 text-center group hover:bg-emerald-100/50 transition-all duration-300" role="region" aria-label="Başarılı testler">
+                    <div class="text-3xl font-extrabold text-emerald-600 mb-1 group-hover:scale-110 transition-transform">${data.summary.passed}</div>
+                    <div class="text-[10px] uppercase tracking-widest font-bold text-emerald-700/70">Güvenli</div>
                 </div>
-                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center" role="region" aria-label="Uyarılar">
-                    <div class="text-2xl font-bold text-yellow-600">${data.summary.warnings}</div>
-                    <div class="text-sm text-yellow-700">Uyarı</div>
+                <div class="bg-amber-50 border border-amber-100 rounded-xl p-5 text-center group hover:bg-amber-100/50 transition-all duration-300" role="region" aria-label="Uyarılar">
+                    <div class="text-3xl font-extrabold text-amber-600 mb-1 group-hover:scale-110 transition-transform">${data.summary.warnings}</div>
+                    <div class="text-[10px] uppercase tracking-widest font-bold text-amber-700/70">Zayıf Yapılandırma</div>
                 </div>
-                <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center" role="region" aria-label="Başarısız testler">
-                    <div class="text-2xl font-bold text-red-600">${data.summary.failed}</div>
-                    <div class="text-sm text-red-700">Başarısız Test</div>
+                <div class="bg-rose-50 border border-rose-100 rounded-xl p-5 text-center group hover:bg-rose-100/50 transition-all duration-300" role="region" aria-label="Başarısız testler">
+                    <div class="text-3xl font-extrabold text-rose-600 mb-1 group-hover:scale-110 transition-transform">${data.summary.failed}</div>
+                    <div class="text-[10px] uppercase tracking-widest font-bold text-rose-700/70">Risk Tespit Edildi</div>
                 </div>
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center" role="region" aria-label="Toplam test sayısı">
-                    <div class="text-2xl font-bold text-blue-600">${data.summary.total}</div>
-                    <div class="text-sm text-blue-700">Toplam Test</div>
+                <div class="bg-slate-50 border border-slate-100 rounded-xl p-5 text-center group hover:bg-slate-100/50 transition-all duration-300" role="region" aria-label="Toplam test sayısı">
+                    <div class="text-3xl font-extrabold text-slate-800 mb-1 group-hover:scale-110 transition-transform">${data.summary.total}</div>
+                    <div class="text-[10px] uppercase tracking-widest font-bold text-slate-500">Kontrol Edilen Parametre</div>
                 </div>
             `;
 
@@ -847,48 +903,50 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
             const rawJsonContent = document.getElementById('rawJsonContent');
             rawJsonContent.textContent = JSON.stringify(data, null, 2);
 
-            // Display detailed results with better accessibility
+            // Display detailed results
             const detailedResults = document.getElementById('detailedResults');
             detailedResults.innerHTML = '';
 
             data.results.forEach((result, index) => {
-                const statusColor = result.status === 'success' ? 'green' : 
-                                  result.status === 'warning' ? 'yellow' : 'red';
-                const statusIcon = result.status === 'success' ? 'check-circle' : 
-                                 result.status === 'warning' ? 'alert-triangle' : 'x-circle';
-                const statusText = result.status === 'success' ? 'Başarılı' : 
-                                 result.status === 'warning' ? 'Uyarı' : 'Başarısız';
+                const statusConfig = {
+                    'success': { color: 'emerald', icon: 'check-circle', label: 'BAŞARILI' },
+                    'warning': { color: 'amber', icon: 'alert-triangle', label: 'UYARI' },
+                    'error': { color: 'rose', icon: 'x-circle', label: 'RİSKLİ' }
+                }[result.status] || { color: 'slate', icon: 'help-circle', label: 'BİLİNMİYOR' };
 
                 const resultCard = document.createElement('article');
-                resultCard.className = 'bg-white rounded-xl shadow-lg p-6 card-hover';
+                resultCard.className = 'glass-card rounded-2xl overflow-hidden hover:shadow-2xl hover:shadow-brand-500/10 transition-all duration-300 border-l-4 border-l-' + statusConfig.color + '-500';
                 resultCard.setAttribute('role', 'region');
-                resultCard.setAttribute('aria-labelledby', `result-title-${index}`);
+
                 resultCard.innerHTML = `
-                    <div class="flex items-start justify-between mb-4">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-${statusColor}-100 rounded-lg flex items-center justify-center" aria-hidden="true">
-                                <i data-feather="${statusIcon}" class="w-5 h-5 text-${statusColor}-600"></i>
+                    <div class="px-6 py-6 border-b border-slate-100">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-${statusConfig.color}-50 text-${statusConfig.color}-600 rounded-xl flex items-center justify-center flex-shrink-0" aria-hidden="true">
+                                    <i data-feather="${statusConfig.icon}" class="w-6 h-6"></i>
+                                </div>
+                                <div class="space-y-1">
+                                    <h4 class="text-lg font-bold text-slate-900 tracking-tight">${result.title}</h4>
+                                    <p class="text-sm text-slate-500 leading-relaxed max-w-2xl">${result.description}</p>
+                                </div>
                             </div>
-                            <div>
-                                <h4 id="result-title-${index}" class="text-lg font-semibold text-gray-800">${result.title}</h4>
-                                <p class="text-sm text-gray-600">${result.description}</p>
+                            <div class="flex-shrink-0 self-start md:self-center">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-bold tracking-widest bg-${statusConfig.color}-50 text-${statusConfig.color}-700 border border-${statusConfig.color}-100">
+                                    ${statusConfig.label}
+                                </span>
                             </div>
                         </div>
-                        <span class="px-3 py-1 rounded-full text-xs font-medium bg-${statusColor}-100 text-${statusColor}-800" role="status" aria-label="Test durumu: ${statusText}">
-                            ${statusText}
-                        </span>
                     </div>
-                    <div class="bg-gray-50 rounded-lg p-4">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Detaylar</span>
-                            <button onclick="copyToClipboard(this)" 
-                                    class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-1 rounded"
-                                    title="Detayları kopyala"
-                                    aria-label="Test detaylarını panoya kopyala">
-                                <i data-feather="copy" class="w-4 h-4" aria-hidden="true"></i>
+                    <div class="bg-slate-50/50 px-6 py-6">
+                        <div class="flex items-center justify-between mb-3 text-xs font-bold text-slate-400 uppercase tracking-widest">
+                            <span>Teknik Bulgular</span>
+                            <button onclick="copyToClipboard(this)" class="hover:text-brand-600 transition-colors p-1" title="Kopyala">
+                                <i data-feather="copy" class="w-3.5 h-3.5"></i>
                             </button>
                         </div>
-                        <pre class="text-sm text-gray-700 whitespace-pre-wrap" data-content="${result.details}" role="textbox" aria-label="Test detayları">${result.details}</pre>
+                        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+                            <pre class="text-xs text-slate-700 font-mono overflow-x-auto leading-relaxed" data-content="${result.details}">${result.details}</pre>
+                        </div>
                     </div>
                 `;
                 detailedResults.appendChild(resultCard);
@@ -902,7 +960,7 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
         function copyToClipboard(button) {
             const preElement = button.closest('.bg-gray-50').querySelector('pre');
             const content = preElement.getAttribute('data-content') || preElement.textContent;
-            
+
             // Modern clipboard API kullan
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(content).then(() => {
@@ -928,7 +986,7 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-            
+
             try {
                 const successful = document.execCommand('copy');
                 if (successful) {
@@ -943,7 +1001,7 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
                 showCopyError(button);
                 announceToScreenReader('Kopyalama başarısız.');
             }
-            
+
             document.body.removeChild(textArea);
         }
 
@@ -951,18 +1009,18 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
         function showCopySuccess(button) {
             const icon = button.querySelector('i');
             const originalIcon = icon.getAttribute('data-feather');
-            
+
             // İkonu geçici olarak değiştir
             icon.setAttribute('data-feather', 'check');
             feather.replace();
-            
+
             // Buton rengini değiştir
             button.classList.remove('text-gray-400', 'hover:text-gray-600');
             button.classList.add('text-green-500');
-            
+
             // Tooltip göster
             button.setAttribute('title', 'Kopyalandı!');
-            
+
             // 2 saniye sonra geri al
             setTimeout(() => {
                 icon.setAttribute('data-feather', originalIcon);
@@ -977,18 +1035,18 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
         function showCopyError(button) {
             const icon = button.querySelector('i');
             const originalIcon = icon.getAttribute('data-feather');
-            
+
             // İkonu geçici olarak değiştir
             icon.setAttribute('data-feather', 'x');
             feather.replace();
-            
+
             // Buton rengini değiştir
             button.classList.remove('text-gray-400', 'hover:text-gray-600');
             button.classList.add('text-red-500');
-            
+
             // Tooltip göster
             button.setAttribute('title', 'Kopyalama başarısız!');
-            
+
             // 2 saniye sonra geri al
             setTimeout(() => {
                 icon.setAttribute('data-feather', originalIcon);
@@ -1005,13 +1063,13 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden'; // Scroll'u engelle
             feather.replace();
-            
+
             // Focus management for accessibility
             const closeButton = modal.querySelector('[onclick="hideApiInfo()"]');
             if (closeButton) {
                 closeButton.focus();
             }
-            
+
             // Announce modal opening
             announceToScreenReader('API dokümantasyonu açıldı.');
         }
@@ -1024,16 +1082,16 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
         }
 
         // Modal dışına tıklayınca kapat
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const modal = document.getElementById('apiModal');
-            modal.addEventListener('click', function(e) {
+            modal.addEventListener('click', function (e) {
                 if (e.target === modal) {
                     hideApiInfo();
                 }
             });
 
             // ESC tuşu ile kapat
-            document.addEventListener('keydown', function(e) {
+            document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
                     hideApiInfo();
                 }
@@ -1044,7 +1102,7 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
         function toggleRawJson() {
             const rawJsonOutput = document.getElementById('rawJsonOutput');
             const buttonText = document.getElementById('rawJsonButtonText');
-            
+
             if (rawJsonOutput.classList.contains('hidden')) {
                 rawJsonOutput.classList.remove('hidden');
                 buttonText.textContent = 'RAW JSON Gizle';
@@ -1060,7 +1118,7 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
         function copyRawJson() {
             const rawJsonContent = document.getElementById('rawJsonContent');
             const content = rawJsonContent.textContent || rawJsonContent.innerText;
-            
+
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(content).then(() => {
                     showCopySuccess(document.querySelector('[onclick="copyRawJson()"]'));
@@ -1086,9 +1144,9 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
                 liveRegion.className = 'sr-only';
                 document.body.appendChild(liveRegion);
             }
-            
+
             liveRegion.textContent = message;
-            
+
             // Clear the message after a short delay
             setTimeout(() => {
                 liveRegion.textContent = '';
@@ -1098,17 +1156,16 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
         function showNotification(message, type = 'info') {
             // Create notification element
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-                type === 'error' ? 'bg-red-500 text-white' : 
-                type === 'success' ? 'bg-green-500 text-white' : 
-                'bg-blue-500 text-white'
-            }`;
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${type === 'error' ? 'bg-red-500 text-white' :
+                type === 'success' ? 'bg-green-500 text-white' :
+                    'bg-blue-500 text-white'
+                }`;
             notification.setAttribute('role', 'alert');
             notification.setAttribute('aria-live', 'assertive');
             notification.textContent = message;
-            
+
             document.body.appendChild(notification);
-            
+
             // Remove notification after 5 seconds
             setTimeout(() => {
                 if (notification.parentNode) {
@@ -1135,4 +1192,5 @@ https://www.guvenliktarama.com/api.php?target=google.com&o=json</pre>
         document.head.appendChild(style);
     </script>
 </body>
+
 </html>

@@ -77,7 +77,13 @@ ErrorDocument 500 /500.php
 </IfModule>
 
 # Prevent access to sensitive files
-<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|inc|bak)$">
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|inc|bak|example|md|txt)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Prevent direct access to internal scripts
+<FilesMatch "(security_check|bootstrap|security_config)\.php$">
     Order Allow,Deny
     Deny from all
 </FilesMatch>
@@ -183,7 +189,7 @@ php_value error_log /dev/null
     Header always set X-XSS-Protection "1; mode=block"
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://unpkg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://www.google-analytics.com; frame-ancestors 'none';"
 </IfModule>
 
 # SSL Yönlendirme (HTTPS varsa)

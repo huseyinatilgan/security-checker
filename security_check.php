@@ -13,97 +13,52 @@ header('X-XSS-Protection: 1; mode=block');
 error_reporting(0);
 ini_set('display_errors', 0);
 
+require_once 'security_config.php';
+
 // Güvenlik fonksiyonları
-class SecurityChecker {
+class SecurityChecker
+{
     private $target;
     private $port;
     private $checks;
     private $results = [];
     private $summary = ['passed' => 0, 'warnings' => 0, 'failed' => 0, 'total' => 0];
+    private $startTime;
+    private $totalTimeout = 25; // seconds total budget
 
-    public function __construct($target, $port = null, $checks = []) {
-        $this->target = $this->sanitizeInput($target);
-        $this->port = $port ? (int)$port : null;
+    public function __construct($target, $port = null, $checks = [])
+    {
+        $this->startTime = microtime(true);
+        // Basic resolution and SSRF check via config
+        $validation = SecurityConfig::resolveAndValidate($target);
+        if (!$validation['valid']) {
+            throw new Exception($validation['error']);
+        }
+
+        $this->target = $validation['domain'] ?? $target;
+        $this->port = $port ? (int) $port : null;
         $this->checks = $checks;
-        
-        // Güvenlik kontrolü
-        if (!$this->validateTarget($this->target)) {
-            throw new Exception('Geçersiz hedef formatı');
-        }
     }
 
-    private function sanitizeInput($input) {
+    private function sanitizeInput($input)
+    {
         $input = trim($input);
-        
-        // URL'den domain kısmını çıkar
-        $input = $this->extractDomainFromUrl($input);
-        
-        return htmlspecialchars($input, ENT_QUOTES, 'UTF-8');
+
+        // URL'den domain kısmını çıkar (Bootstrap veya config üzerinden de gelebilir)
+        $domain = SecurityConfig::sanitizeInput($input, 'string');
+
+        return $domain;
     }
 
-    private function validateTarget($target) {
-        // Boş kontrol
-        if (empty($target)) {
-            return false;
-        }
-        
-        // URL'den domain kısmını çıkar
-        $target = $this->extractDomainFromUrl($target);
-        
-        // Uzunluk kontrolü
-        if (strlen($target) > 253) {
-            return false;
-        }
-        
-        // Tehlikeli karakterler
-        $dangerousChars = ['<', '>', '"', "'", '&', ';', '|', '`', '$', '(', ')', '{', '}', '[', ']'];
-        foreach ($dangerousChars as $char) {
-            if (strpos($target, $char) !== false) {
-                return false;
-            }
-        }
-        
-        // Domain/IP validasyonu
-        if (filter_var($target, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-            // Domain validasyonu
-            $parts = explode('.', $target);
-            foreach ($parts as $part) {
-                if (strlen($part) > 63 || !preg_match('/^[a-zA-Z0-9\-]+$/', $part)) {
-                    return false;
-                }
-            }
-            return true;
-        } elseif (filter_var($target, FILTER_VALIDATE_IP)) {
-            // IP validasyonu
-            return true;
-        }
-        
-        return false;
-    }
-
-    private function extractDomainFromUrl($url) {
-        // URL'den domain kısmını çıkar
-        $url = trim($url);
-        
-        // Eğer http:// veya https:// ile başlıyorsa
-        if (preg_match('/^https?:\/\//', $url)) {
-            $parsedUrl = parse_url($url);
-            if (isset($parsedUrl['host'])) {
-                return $parsedUrl['host'];
-            }
-        }
-        
-        // Eğer www. ile başlıyorsa
-        if (strpos($url, 'www.') === 0) {
-            return substr($url, 4);
-        }
-        
-        // Eğer sadece domain ise
-        return $url;
-    }
-
-    public function runChecks() {
+    public function runChecks()
+    {
         foreach ($this->checks as $check) {
+            // Check global timeout budget
+            if ((microtime(true) - $this->startTime) > $this->totalTimeout) {
+                $this->addResult('Bütçe Aşımı', 'Sistem kaynakları limitine ulaşıldı', 'warning', 'Süre limiti aşıldığı için kalan testler atlandı.');
+                break;
+            }
+
             switch ($check) {
                 case 'dns':
                     $this->checkDNS();
@@ -133,7 +88,8 @@ class SecurityChecker {
         ];
     }
 
-    private function addResult($title, $description, $status, $details) {
+    private function addResult($title, $description, $status, $details)
+    {
         $this->results[] = [
             'title' => $title,
             'description' => $description,
@@ -154,13 +110,14 @@ class SecurityChecker {
         }
     }
 
-    private function checkDNS() {
+    private function checkDNS()
+    {
         $title = 'DNS Güvenlik Kontrolü';
         $description = 'DNS kayıtları ve güvenlik ayarları kontrol ediliyor';
-        
+
         try {
             $details = "DNS Kontrol Sonuçları:\n\n";
-            
+
             // A kaydı kontrolü
             $aRecords = dns_get_record($this->target, DNS_A);
             if (!empty($aRecords)) {
@@ -185,7 +142,7 @@ class SecurityChecker {
             $txtRecords = dns_get_record($this->target, DNS_TXT);
             $hasSPF = false;
             $hasDMARC = false;
-            
+
             foreach ($txtRecords as $record) {
                 if (strpos($record['txt'], 'v=spf1') !== false) {
                     $hasSPF = true;
@@ -221,60 +178,61 @@ class SecurityChecker {
         }
     }
 
-    private function checkSSL() {
+    private function checkSSL()
+    {
         $title = 'SSL/TLS Güvenlik Kontrolü';
         $description = 'SSL sertifikası ve güvenlik protokolleri kontrol ediliyor';
-        
+
         try {
             $details = "SSL/TLS Kontrol Sonuçları:\n\n";
-            
-            // Timeout ayarı
+
+            // Strict Timeout ayarı
             $context = stream_context_create([
                 'ssl' => [
                     'verify_peer' => false,
                     'verify_peer_name' => false,
-                    'timeout' => 10
+                    'timeout' => 3 // Connection timeout
                 ]
             ]);
-            
+
             // SSL bağlantısı kur
             $socket = @stream_socket_client(
-                "ssl://{$this->target}:443", 
-                $errno, 
-                $errstr, 
-                10, 
-                STREAM_CLIENT_CONNECT, 
+                "ssl://{$this->target}:443",
+                $errno,
+                $errstr,
+                2, // Connect timeout
+                STREAM_CLIENT_CONNECT,
                 $context
             );
-            
+
             if (!$socket) {
                 $this->addResult($title, $description, 'error', 'SSL bağlantısı kurulamadı: ' . $errstr);
                 return;
             }
-            
+
             // Sertifika bilgilerini al
             $cert = stream_context_get_params($socket);
             $certData = stream_get_meta_data($socket);
-            
+
             if (isset($certData['crypto'])) {
                 $details .= "✓ SSL/TLS bağlantısı başarılı\n";
                 $details .= "  Protokol: " . $certData['crypto']['protocol'] . "\n";
                 $details .= "  Cipher: " . $certData['crypto']['cipher_name'] . "\n";
                 $details .= "  Key Exchange: " . $certData['crypto']['key_exchange'] . "\n";
             }
-            
+
             // Sertifika bilgilerini al
             $certInfo = stream_context_get_params($socket);
             if (isset($certInfo['options']['ssl']['peer_certificate'])) {
                 $cert = openssl_x509_parse($certInfo['options']['ssl']['peer_certificate']);
-                
+
                 if ($cert) {
                     $details .= "\n📋 Sertifika Bilgileri:\n";
                     $details .= "  Konu: " . $cert['subject']['CN'] . "\n";
                     $details .= "  Yayınlayan: " . $cert['issuer']['CN'] . "\n";
                     $details .= "  Geçerlilik Başlangıcı: " . date('Y-m-d', $cert['validFrom_time_t']) . "\n";
                     $details .= "  Geçerlilik Bitişi: " . date('Y-m-d', $cert['validTo_time_t']) . "\n";
-                    
+
                     // Sertifika geçerlilik kontrolü
                     $currentTime = time();
                     if ($currentTime < $cert['validFrom_time_t']) {
@@ -286,7 +244,7 @@ class SecurityChecker {
                     } else {
                         $daysLeft = floor(($cert['validTo_time_t'] - $currentTime) / 86400);
                         $details .= "  ✓ Sertifika geçerli (Kalan gün: {$daysLeft})\n";
-                        
+
                         if ($daysLeft < 30) {
                             $details .= "  ⚠ Sertifika yakında sona erecek\n";
                             $status = 'warning';
@@ -294,11 +252,11 @@ class SecurityChecker {
                             $status = 'success';
                         }
                     }
-                    
+
                     // Güvenlik protokolleri kontrolü
                     $details .= "\n🔒 Güvenlik Protokolleri:\n";
                     $supportedProtocols = [];
-                    
+
                     // TLS versiyonlarını test et
                     $tlsVersions = ['tlsv1.3', 'tlsv1.2', 'tlsv1.1', 'tlsv1.0'];
                     foreach ($tlsVersions as $version) {
@@ -306,26 +264,26 @@ class SecurityChecker {
                             'ssl' => [
                                 'verify_peer' => false,
                                 'verify_peer_name' => false,
-                                'timeout' => 5,
+                                'timeout' => 2,
                                 'crypto_method' => constant('STREAM_CRYPTO_METHOD_' . strtoupper($version))
                             ]
                         ]);
-                        
+
                         $testSocket = @stream_socket_client(
-                            "ssl://{$this->target}:443", 
-                            $errno, 
-                            $errstr, 
-                            5, 
-                            STREAM_CLIENT_CONNECT, 
+                            "ssl://{$this->target}:443",
+                            $errno,
+                            $errstr,
+                            2,
+                            STREAM_CLIENT_CONNECT,
                             $testContext
                         );
-                        
+
                         if ($testSocket) {
                             $supportedProtocols[] = $version;
                             fclose($testSocket);
                         }
                     }
-                    
+
                     if (in_array('tlsv1.3', $supportedProtocols)) {
                         $details .= "  ✓ TLS 1.3 destekleniyor (En güvenli)\n";
                     } elseif (in_array('tlsv1.2', $supportedProtocols)) {
@@ -333,12 +291,13 @@ class SecurityChecker {
                     } else {
                         $details .= "  ⚠ Eski TLS versiyonları kullanılıyor\n";
                     }
-                    
+
                     if (in_array('tlsv1.0', $supportedProtocols) || in_array('tlsv1.1', $supportedProtocols)) {
                         $details .= "  ⚠ Eski TLS versiyonları (1.0/1.1) destekleniyor\n";
-                        if ($status === 'success') $status = 'warning';
+                        if ($status === 'success')
+                            $status = 'warning';
                     }
-                    
+
                 } else {
                     $details .= "⚠ Sertifika bilgileri alınamadı\n";
                     $status = 'warning';
@@ -347,26 +306,27 @@ class SecurityChecker {
                 $details .= "⚠ SSL sertifikası bulunamadı\n";
                 $status = 'error';
             }
-            
+
             fclose($socket);
             $this->addResult($title, $description, $status, $details);
-            
+
         } catch (Exception $e) {
             $this->addResult($title, $description, 'error', 'SSL kontrolü sırasında hata: ' . $e->getMessage());
         }
     }
 
-    private function checkHTTPHeaders() {
+    private function checkHTTPHeaders()
+    {
         $title = 'HTTP Güvenlik Headers Kontrolü';
         $description = 'HTTP güvenlik başlıkları kontrol ediliyor';
-        
+
         try {
             $details = "HTTP Headers Kontrol Sonuçları:\n\n";
-            
+
             // Protokol belirleme
             $protocol = 'http';
             $port = $this->port ?: 80;
-            
+
             // HTTPS kontrolü
             if ($port == 443 || $port == 8443) {
                 $protocol = 'https';
@@ -376,54 +336,54 @@ class SecurityChecker {
                     'ssl' => [
                         'verify_peer' => false,
                         'verify_peer_name' => false,
-                        'timeout' => 5
+                        'timeout' => 2
                     ]
                 ]);
-                
+
                 $sslConnection = @stream_socket_client(
                     "ssl://{$this->target}:{$port}",
                     $errno,
                     $errstr,
-                    5,
+                    2,
                     STREAM_CLIENT_CONNECT,
                     $sslContext
                 );
-                
+
                 if ($sslConnection) {
                     $protocol = 'https';
                     fclose($sslConnection);
                 }
             }
-            
+
             $url = "{$protocol}://{$this->target}";
             $details .= "🔗 Test URL: {$url}\n\n";
-            
+
             // İlk bağlantı - redirect'leri kontrol et
             $context = stream_context_create([
                 'http' => [
                     'method' => 'HEAD',
-                    'timeout' => 10,
-                    'user_agent' => 'SecurityChecker/1.0',
+                    'timeout' => 3,
+                    'user_agent' => 'SecurityChecker/1.1',
                     'follow_location' => false,
                     'max_redirects' => 0
                 ]
             ]);
 
             $headers = @get_headers($url, 1, $context);
-            
+
             if ($headers && is_array($headers)) {
                 $details .= "✓ HTTP bağlantısı başarılı\n";
-                
+
                 // HTTP durum kodu kontrolü
                 $statusLine = $headers[0] ?? '';
                 if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', $statusLine, $matches)) {
                     $httpCode = $matches[1];
                     $details .= "📊 HTTP Durum Kodu: {$httpCode}\n";
-                    
+
                     // Redirect kontrolü
                     if ($httpCode >= 300 && $httpCode < 400) {
                         $details .= "🔄 Redirect tespit edildi\n";
-                        
+
                         // Location header'ını bul
                         $location = null;
                         foreach ($headers as $key => $value) {
@@ -432,34 +392,34 @@ class SecurityChecker {
                                 break;
                             }
                         }
-                        
+
                         if ($location) {
                             $details .= "📍 Yönlendirilen URL: {$location}\n\n";
-                            
+
                             // Final URL'den header'ları al
                             $finalContext = stream_context_create([
                                 'http' => [
                                     'method' => 'HEAD',
-                                    'timeout' => 10,
-                                    'user_agent' => 'SecurityChecker/1.0',
+                                    'timeout' => 3,
+                                    'user_agent' => 'SecurityChecker/1.1',
                                     'follow_location' => false,
                                     'max_redirects' => 0
                                 ]
                             ]);
-                            
+
                             $finalHeaders = @get_headers($location, 1, $finalContext);
-                            
+
                             if ($finalHeaders && is_array($finalHeaders)) {
                                 $finalStatusLine = $finalHeaders[0] ?? '';
                                 if (preg_match('/HTTP\/\d\.\d\s+(\d+)/', $finalStatusLine, $matches)) {
                                     $finalHttpCode = $matches[1];
                                     $details .= "📊 Final HTTP Durum Kodu: {$finalHttpCode}\n";
-                                    
+
                                     if ($finalHttpCode >= 400) {
                                         $details .= "⚠ Final URL'de HTTP hatası: {$finalStatusLine}\n";
                                     }
                                 }
-                                
+
                                 $headers = $finalHeaders; // Final header'ları kullan
                             } else {
                                 $details .= "⚠ Final URL'den header'lar alınamadı\n";
@@ -469,9 +429,9 @@ class SecurityChecker {
                         $details .= "⚠ HTTP hatası: {$statusLine}\n";
                     }
                 }
-                
+
                 $details .= "\n🔒 Güvenlik Headers Kontrolü:\n";
-                
+
                 $securityHeaders = [
                     'Strict-Transport-Security' => 'HSTS (HTTPS zorunluluğu)',
                     'X-Frame-Options' => 'Clickjacking koruması',
@@ -485,10 +445,10 @@ class SecurityChecker {
 
                 $foundHeaders = 0;
                 $totalHeaders = count($securityHeaders);
-                
+
                 foreach ($securityHeaders as $header => $description) {
                     $headerValue = null;
-                    
+
                     // Case-insensitive header arama
                     foreach ($headers as $key => $value) {
                         if (strcasecmp($key, $header) === 0) {
@@ -496,7 +456,7 @@ class SecurityChecker {
                             break;
                         }
                     }
-                    
+
                     if ($headerValue !== null) {
                         $details .= "✓ {$description}: {$headerValue}\n";
                         $foundHeaders++;
@@ -513,7 +473,7 @@ class SecurityChecker {
                         break;
                     }
                 }
-                
+
                 if ($serverInfo) {
                     $details .= "\n🖥️ Server: {$serverInfo}\n";
                 }
@@ -521,7 +481,7 @@ class SecurityChecker {
                 // Güvenlik değerlendirmesi
                 $securityScore = ($foundHeaders / $totalHeaders) * 100;
                 $details .= "\n📊 Güvenlik Skoru: {$foundHeaders}/{$totalHeaders} (%" . round($securityScore, 1) . ")\n";
-                
+
                 if ($securityScore >= 80) {
                     $status = 'success';
                     $details .= "✓ Mükemmel güvenlik headers yapılandırması\n";
@@ -532,7 +492,7 @@ class SecurityChecker {
                     $status = 'error';
                     $details .= "⚠ Yetersiz güvenlik headers yapılandırması\n";
                 }
-                
+
             } else {
                 $details .= "⚠ HTTP bağlantısı kurulamadı\n";
                 $details .= "  Olası nedenler:\n";
@@ -549,38 +509,39 @@ class SecurityChecker {
         }
     }
 
-    private function checkPorts() {
+    private function checkPorts()
+    {
         $title = 'Port Tarama Kontrolü';
         $description = 'Açık portlar ve servisler kontrol ediliyor';
-        
+
         try {
             $details = "Port Tarama Sonuçları:\n\n";
-            
-            // Güvenlik limitleri
-            $maxPorts = 10; // Maksimum 10 port taranabilir
-            $timeout = 3; // 3 saniye timeout
-            
+
+            // Strict Güvenlik limitleri
+            $maxPorts = 10;
+            $timeout = 1.5; // Reducing timeout for port scanning to prevent hanging
+
             // Varsayılan portlar
             $commonPorts = [21, 22, 23, 25, 53, 80, 110, 143, 443, 993, 995, 3306, 5432, 8080];
-            
+
             // Eğer özel port belirtilmişse, sadece o portu tara
             if ($this->port !== null) {
                 $portsToScan = [$this->port];
             } else {
                 $portsToScan = array_slice($commonPorts, 0, $maxPorts);
             }
-            
+
             $openPorts = [];
             $closedPorts = [];
-            
+
             foreach ($portsToScan as $port) {
                 // Port numarası validasyonu
                 if ($port < 1 || $port > 65535) {
                     continue;
                 }
-                
+
                 $connection = @fsockopen($this->target, $port, $errno, $errstr, $timeout);
-                
+
                 if ($connection) {
                     $openPorts[] = $port;
                     $serviceName = $this->getServiceName($port);
@@ -591,16 +552,16 @@ class SecurityChecker {
                     $details .= "✗ Port {$port} kapalı\n";
                 }
             }
-            
+
             $details .= "\n📊 Port Tarama Özeti:\n";
             $details .= "  • Açık portlar: " . count($openPorts) . "\n";
             $details .= "  • Kapalı portlar: " . count($closedPorts) . "\n";
             $details .= "  • Toplam taranan: " . count($portsToScan) . "\n";
-            
+
             // Güvenlik değerlendirmesi
             $dangerousPorts = [21, 23, 25, 110, 143]; // FTP, Telnet, SMTP, POP3, IMAP
             $openDangerousPorts = array_intersect($openPorts, $dangerousPorts);
-            
+
             if (!empty($openDangerousPorts)) {
                 $details .= "\n⚠ Güvenlik Uyarısı:\n";
                 foreach ($openDangerousPorts as $port) {
@@ -615,15 +576,16 @@ class SecurityChecker {
                 $details .= "\n✓ Açık portlar güvenlik riski oluşturmuyor\n";
                 $status = 'success';
             }
-            
+
             $this->addResult($title, $description, $status, $details);
-            
+
         } catch (Exception $e) {
             $this->addResult($title, $description, 'error', 'Port tarama sırasında hata: ' . $e->getMessage());
         }
     }
-    
-    private function getServiceName($port) {
+
+    private function getServiceName($port)
+    {
         $services = [
             21 => 'FTP',
             22 => 'SSH',
@@ -640,42 +602,48 @@ class SecurityChecker {
             5432 => 'PostgreSQL',
             8080 => 'HTTP-Alt'
         ];
-        
+
         return $services[$port] ?? 'Unknown';
     }
 
-    private function checkEmailSecurity() {
+    private function checkEmailSecurity()
+    {
         $title = 'E-posta Güvenlik Kontrolü';
         $description = 'E-posta güvenlik ayarları kontrol ediliyor';
-        
+
         try {
             $details = "E-posta Güvenlik Kontrol Sonuçları:\n\n";
-            
+
             // SPF, DKIM, DMARC kontrolleri
             $spfStatus = $this->checkSPF();
             $dkimStatus = $this->checkDKIM();
             $dmarcStatus = $this->checkDMARC();
             $mxStatus = $this->checkMXRecords();
             $reverseDNSStatus = $this->checkReverseDNS();
-            
+
             // Özet
             $totalChecks = 5;
             $passedChecks = 0;
-            
-            if ($spfStatus['status'] === 'success') $passedChecks++;
-            if ($dkimStatus['status'] === 'success') $passedChecks++;
-            if ($dmarcStatus['status'] === 'success') $passedChecks++;
-            if ($mxStatus['status'] === 'success') $passedChecks++;
-            if ($reverseDNSStatus['status'] === 'success') $passedChecks++;
-            
+
+            if ($spfStatus['status'] === 'success')
+                $passedChecks++;
+            if ($dkimStatus['status'] === 'success')
+                $passedChecks++;
+            if ($dmarcStatus['status'] === 'success')
+                $passedChecks++;
+            if ($mxStatus['status'] === 'success')
+                $passedChecks++;
+            if ($reverseDNSStatus['status'] === 'success')
+                $passedChecks++;
+
             $details .= $spfStatus['details'];
             $details .= $dkimStatus['details'];
             $details .= $dmarcStatus['details'];
             $details .= $mxStatus['details'];
             $details .= $reverseDNSStatus['details'];
-            
+
             $details .= "\n📊 E-posta Güvenlik Skoru: {$passedChecks}/{$totalChecks}\n";
-            
+
             if ($passedChecks >= 4) {
                 $status = 'success';
                 $details .= "✓ E-posta güvenlik ayarları mükemmel\n";
@@ -693,24 +661,25 @@ class SecurityChecker {
             $this->addResult($title, $description, 'error', 'E-posta güvenlik kontrolü sırasında hata: ' . $e->getMessage());
         }
     }
-    
-    private function checkSPF() {
+
+    private function checkSPF()
+    {
         $details = "🔍 SPF (Sender Policy Framework) Kontrolü:\n";
-        
+
         try {
             $txtRecords = dns_get_record($this->target, DNS_TXT);
             $spfRecord = null;
-            
+
             foreach ($txtRecords as $record) {
                 if (strpos($record['txt'], 'v=spf1') !== false) {
                     $spfRecord = $record['txt'];
                     break;
                 }
             }
-            
+
             if ($spfRecord) {
                 $details .= "✓ SPF kaydı bulundu: {$spfRecord}\n";
-                
+
                 // SPF kaydı analizi
                 if (strpos($spfRecord, '~all') !== false) {
                     $details .= "  ⚠ Soft fail (~all) kullanılıyor\n";
@@ -735,18 +704,19 @@ class SecurityChecker {
             return ['status' => 'error', 'details' => $details];
         }
     }
-    
-    private function checkDKIM() {
+
+    private function checkDKIM()
+    {
         $details = "🔍 DKIM (DomainKeys Identified Mail) Kontrolü:\n";
-        
+
         try {
             // DKIM selector'ları kontrol et
             $dkimSelectors = ['default', 'google', 'selector1', 'selector2'];
             $dkimFound = false;
-            
+
             foreach ($dkimSelectors as $selector) {
                 $dkimRecord = dns_get_record("{$selector}._domainkey.{$this->target}", DNS_TXT);
-                
+
                 foreach ($dkimRecord as $record) {
                     if (strpos($record['txt'], 'v=DKIM1') !== false) {
                         $details .= "✓ DKIM kaydı bulundu (Selector: {$selector})\n";
@@ -756,38 +726,39 @@ class SecurityChecker {
                     }
                 }
             }
-            
+
             if (!$dkimFound) {
                 $details .= "⚠ DKIM kaydı bulunamadı\n";
                 $details .= "  Önerilen: DKIM sertifikası oluşturun\n";
                 return ['status' => 'error', 'details' => $details];
             }
-            
+
             return ['status' => 'success', 'details' => $details];
-            
+
         } catch (Exception $e) {
             $details .= "⚠ DKIM kontrolü sırasında hata: " . $e->getMessage() . "\n";
             return ['status' => 'error', 'details' => $details];
         }
     }
-    
-    private function checkDMARC() {
+
+    private function checkDMARC()
+    {
         $details = "🔍 DMARC (Domain-based Message Authentication) Kontrolü:\n";
-        
+
         try {
             $dmarcRecords = dns_get_record("_dmarc.{$this->target}", DNS_TXT);
             $dmarcRecord = null;
-            
+
             foreach ($dmarcRecords as $record) {
                 if (strpos($record['txt'], 'v=DMARC1') !== false) {
                     $dmarcRecord = $record['txt'];
                     break;
                 }
             }
-            
+
             if ($dmarcRecord) {
                 $details .= "✓ DMARC kaydı bulundu: {$dmarcRecord}\n";
-                
+
                 // DMARC policy kontrolü
                 if (preg_match('/p=reject/', $dmarcRecord)) {
                     $details .= "  ✓ Reject policy kullanılıyor (En güvenli)\n";
@@ -807,36 +778,39 @@ class SecurityChecker {
                 $details .= "  Önerilen: v=DMARC1; p=reject; rua=mailto:dmarc@{$this->target}\n";
                 return ['status' => 'error', 'details' => $details];
             }
-            
+
         } catch (Exception $e) {
             $details .= "⚠ DMARC kontrolü sırasında hata: " . $e->getMessage() . "\n";
             return ['status' => 'error', 'details' => $details];
         }
     }
-    
-    private function checkMXRecords() {
+
+    private function checkMXRecords()
+    {
         $details = "🔍 MX (Mail Exchange) Kayıtları Kontrolü:\n";
-        
+
         try {
             $mxRecords = dns_get_record($this->target, DNS_MX);
-            
+
             if (!empty($mxRecords)) {
                 $details .= "✓ MX kayıtları bulundu:\n";
                 foreach ($mxRecords as $record) {
                     $details .= "  • {$record['target']} (Priority: {$record['pri']})\n";
                 }
-                
+
                 // MX kayıtlarının güvenlik kontrolü
                 $secureMX = false;
                 foreach ($mxRecords as $record) {
-                    if (strpos($record['target'], 'google') !== false || 
+                    if (
+                        strpos($record['target'], 'google') !== false ||
                         strpos($record['target'], 'outlook') !== false ||
-                        strpos($record['target'], 'microsoft') !== false) {
+                        strpos($record['target'], 'microsoft') !== false
+                    ) {
                         $secureMX = true;
                         break;
                     }
                 }
-                
+
                 if ($secureMX) {
                     $details .= "  ✓ Güvenli mail servisi kullanılıyor\n";
                     return ['status' => 'success', 'details' => $details];
@@ -848,25 +822,26 @@ class SecurityChecker {
                 $details .= "⚠ MX kaydı bulunamadı\n";
                 return ['status' => 'error', 'details' => $details];
             }
-            
+
         } catch (Exception $e) {
             $details .= "⚠ MX kontrolü sırasında hata: " . $e->getMessage() . "\n";
             return ['status' => 'error', 'details' => $details];
         }
     }
-    
-    private function checkReverseDNS() {
+
+    private function checkReverseDNS()
+    {
         $details = "🔍 Reverse DNS (PTR) Kontrolü:\n";
-        
+
         try {
             $ip = gethostbyname($this->target);
-            
+
             if ($ip && $ip !== $this->target) {
                 $ptrRecord = gethostbyaddr($ip);
-                
+
                 if ($ptrRecord && $ptrRecord !== $ip) {
                     $details .= "✓ PTR kaydı bulundu: {$ptrRecord}\n";
-                    
+
                     // PTR kaydının domain ile uyumluluğu
                     if (strpos($ptrRecord, $this->target) !== false) {
                         $details .= "  ✓ PTR kaydı domain ile uyumlu\n";
@@ -883,26 +858,27 @@ class SecurityChecker {
                 $details .= "⚠ IP adresi çözümlenemedi\n";
                 return ['status' => 'error', 'details' => $details];
             }
-            
+
         } catch (Exception $e) {
             $details .= "⚠ Reverse DNS kontrolü sırasında hata: " . $e->getMessage() . "\n";
             return ['status' => 'error', 'details' => $details];
         }
     }
 
-    private function checkBlacklist() {
+    private function checkBlacklist()
+    {
         $title = 'Kara Liste Kontrolü';
         $description = 'IP adresinin kara listelerde olup olmadığı kontrol ediliyor';
-        
+
         try {
             $details = "Kara Liste Kontrol Sonuçları:\n\n";
-            
+
             // IP adresini al
             $ip = gethostbyname($this->target);
-            
+
             if ($ip && $ip !== $this->target) {
                 $details .= "✓ IP adresi çözümlendi: {$ip}\n\n";
-                
+
                 // Basit kara liste kontrolü (gerçek uygulamada daha gelişmiş servisler kullanılır)
                 $blacklistChecks = [
                     'Spamhaus' => 'zen.spamhaus.org',
@@ -914,9 +890,9 @@ class SecurityChecker {
                 foreach ($blacklistChecks as $service => $server) {
                     $reverseIP = implode('.', array_reverse(explode('.', $ip)));
                     $lookup = $reverseIP . '.' . $server;
-                    
+
                     $result = gethostbyname($lookup);
-                    
+
                     if ($result !== $lookup) {
                         $details .= "⚠ {$service}: Kara listede bulundu\n";
                         $blacklistedCount++;
@@ -932,7 +908,7 @@ class SecurityChecker {
                     $status = 'error';
                     $details .= "\n⚠ IP adresi {$blacklistedCount} kara listede bulundu\n";
                 }
-                
+
             } else {
                 $details .= "⚠ IP adresi çözümlenemedi\n";
                 $status = 'warning';
@@ -946,34 +922,9 @@ class SecurityChecker {
     }
 }
 
-// Ana işlem
-try {
-    if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-        throw new Exception('Sadece GET istekleri kabul edilir');
-    }
-
-    $target = $_GET['target'] ?? '';
-    $port = $_GET['port'] ?? null;
-    $checks = $_GET['checks'] ?? [];
-
-    if (empty($target)) {
-        throw new Exception('Hedef belirtilmedi');
-    }
-
-    if (empty($checks)) {
-        $checks = ['dns', 'ssl', 'headers', 'ports']; // Varsayılan kontroller
-    }
-
-    $checker = new SecurityChecker($target, $port, $checks);
-    $results = $checker->runChecks();
-
-    echo json_encode($results, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
-} catch (Exception $e) {
-    http_response_code(400);
-    echo json_encode([
-        'error' => true,
-        'message' => $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
+// Internal scripts should not be executed directly in production
+if (SecurityConfig::isProduction() && !defined('APP_BOOTSTRAPPED')) {
+    header('HTTP/1.1 403 Forbidden');
+    die('Direct access forbidden');
 }
-?> 
+?>

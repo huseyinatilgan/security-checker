@@ -11,34 +11,11 @@
  *   TEXT: https://guvenliktarama.com/api.php?target=google.com&o=text
  */
 
-// --- CORS ve Güvenlik Headerları ---
-$allowedOrigins = [
-    'http://localhost:8000',
-    'http://localhost:3000',
-    'https://guvenliktarama.com',
-    'https://www.guvenliktarama.com'
-];
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-if (in_array($origin, $allowedOrigins)) {
-    header('Access-Control-Allow-Origin: ' . $origin);
-} else {
-    header('Access-Control-Allow-Origin: null');
-}
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Max-Age: 86400');
-header('X-Content-Type-Options: nosniff');
-header('X-Frame-Options: DENY');
-header('X-XSS-Protection: 1; mode=block');
-header('Referrer-Policy: strict-origin-when-cross-origin');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+require_once 'bootstrap.php';
 
 // --- Hata Mesajı Fonksiyonu ---
-function apiError($message, $code = 400, $outputType = 'json', $extra = []) {
+function apiError($message, $code = 400, $outputType = 'json', $extra = [])
+{
     http_response_code($code);
     if ($outputType === 'text') {
         header('Content-Type: text/plain; charset=utf-8');
@@ -53,118 +30,49 @@ function apiError($message, $code = 400, $outputType = 'json', $extra = []) {
     exit();
 }
 
-// --- Sadece GET Desteği ---
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    $outputType = strtolower($_GET['o'] ?? 'json');
-    apiError('Sadece GET istekleri kabul edilir', 405, $outputType);
-}
-
 // --- Parametreleri Al ---
 $input = $_GET;
 $target = $input['target'] ?? '';
 $port = $input['port'] ?? null;
 $checks = $input['checks'] ?? [];
-$outputType = strtolower($input['o'] ?? 'json'); // o=json veya o=text
+$outputType = strtolower($input['o'] ?? 'json');
+
+// --- Sadece GET Desteği ---
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    apiError('Sadece GET istekleri kabul edilir', 405, $outputType);
+}
 
 // --- Rate Limiting ---
-function checkRateLimit($ip) {
-    $cacheDir = sys_get_temp_dir() . '/security_api_rate_limit/';
-    if (!is_dir($cacheDir)) mkdir($cacheDir, 0755, true);
-    $cacheFile = $cacheDir . md5($ip) . '.json';
-    $currentTime = time();
-    $limit = 20; $window = 60;
-    if (file_exists($cacheFile)) {
-        $data = json_decode(file_get_contents($cacheFile), true);
-        if ($data && ($currentTime - $data['timestamp']) < $window) {
-            if ($data['count'] >= $limit) return false;
-            $data['count']++;
-        } else {
-            $data = ['timestamp' => $currentTime, 'count' => 1];
-        }
-    } else {
-        $data = ['timestamp' => $currentTime, 'count' => 1];
-    }
-    file_put_contents($cacheFile, json_encode($data));
-    return true;
-}
-$clientIP = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-if (!checkRateLimit($clientIP)) {
-    apiError('Rate limit aşıldı. Lütfen daha sonra tekrar deneyin.', 429, $outputType, ['retry_after' => 60]);
-}
+handleRateLimit($outputType);
 
 // --- Parametre Validasyonu ---
-function validateTarget($target) {
-    if (empty($target) || strlen($target) > 253) return false;
-    
-    // URL'den domain kısmını çıkar
-    $target = extractDomainFromUrl($target);
-    
-    $dangerousChars = ['<', '>', '"', "'", '&', ';', '|', '`', '$', '(', ')', '{', '}', '[', ']'];
-    foreach ($dangerousChars as $char) if (strpos($target, $char) !== false) return false;
-    if (filter_var($target, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)) {
-        $parts = explode('.', $target);
-        foreach ($parts as $part) if (strlen($part) > 63 || !preg_match('/^[a-zA-Z0-9\-]+$/', $part)) return false;
-        return true;
-    } elseif (filter_var($target, FILTER_VALIDATE_IP)) {
-        return true;
-    }
-    return false;
-}
-
-function extractDomainFromUrl($url) {
-    // URL'den domain kısmını çıkar
-    $url = trim($url);
-    
-    // Eğer http:// veya https:// ile başlıyorsa
-    if (preg_match('/^https?:\/\//', $url)) {
-        $parsedUrl = parse_url($url);
-        if (isset($parsedUrl['host'])) {
-            return $parsedUrl['host'];
-        }
-    }
-    
-    // Eğer www. ile başlıyorsa
-    if (strpos($url, 'www.') === 0) {
-        return substr($url, 4);
-    }
-    
-    // Eğer sadece domain ise
-    return $url;
-}
-
 if (empty($target)) {
     apiError('Target parameter is required', 400, $outputType, ['required_parameters' => ['target']]);
 }
-if (!validateTarget($target)) {
-    apiError('Invalid target format. Use valid domain or IP address.', 400, $outputType, [
+
+$validationErrors = SecurityConfig::validateSecurity($target, $port, $checks);
+if (!empty($validationErrors)) {
+    apiError(implode(', ', $validationErrors), 400, $outputType, [
         'examples' => [
-            'domains' => ['google.com', 'guvenliktarama.com', 'example.org'],
-            'ips' => ['8.8.8.8', '1.1.1.1', '192.168.1.1']
+            'domains' => ['google.com', 'guvenliktarama.com'],
+            'ips' => ['8.8.8.8', '1.1.1.1']
         ]
     ]);
 }
-if ($port !== null) {
-    $port = (int)$port;
-    if ($port < 1 || $port > 65535) {
-        apiError('Invalid port number. Must be between 1 and 65535.', 400, $outputType);
-    }
-}
-$validChecks = ['dns', 'ssl', 'headers', 'ports', 'email', 'blacklist'];
-if (!empty($checks)) {
-    $invalidChecks = array_diff($checks, $validChecks);
-    if (!empty($invalidChecks)) {
-        apiError('Invalid check types: ' . implode(', ', $invalidChecks), 400, $outputType, [
-            'valid_checks' => $validChecks
-        ]);
-    }
-} else {
+
+if ($port !== null)
+    $port = (int) $port;
+if (empty($checks))
     $checks = ['dns', 'ssl', 'headers', 'ports'];
-}
 
 // --- Güvenlik Kontrolünü Çalıştır ---
 require_once 'security_check.php';
-$checker = new SecurityChecker($target, $port, $checks);
-$results = $checker->runChecks();
+try {
+    $checker = new SecurityChecker($target, $port, $checks);
+    $results = $checker->runChecks();
+} catch (Exception $e) {
+    apiError($e->getMessage(), 400, $outputType);
+}
 
 // --- Yanıt ---
 if ($outputType === 'text') {
@@ -173,7 +81,8 @@ if ($outputType === 'text') {
     $lines = [];
     $lines[] = "Güvenlik Kontrol Sonucu";
     $lines[] = "Hedef: $target";
-    if ($port) $lines[] = "Port: $port";
+    if ($port)
+        $lines[] = "Port: $port";
     $lines[] = "";
     foreach ($results['results'] as $item) {
         $lines[] = "- {$item['title']}: {$item['status']}";
@@ -202,7 +111,7 @@ if ($outputType === 'text') {
     ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     exit();
 }
-
+?>
 /**
  * --- API DOKÜMANTASYON ---
  *
@@ -226,4 +135,4 @@ if ($outputType === 'text') {
  * Rate limit: Dakikada 20 istek
  * API anahtarı: (Opsiyonel, production için zorunlu)
  */
-?> 
+?>
